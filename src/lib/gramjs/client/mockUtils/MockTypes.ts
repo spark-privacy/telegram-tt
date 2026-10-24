@@ -75,6 +75,12 @@ export type MockDialogFilter = Partial<Api.DialogFilter> & {
   title: string;
 };
 
+export type MockQuickReply = {
+  shortcutId: number;
+  shortcut: string;
+  topMessageId: number;
+};
+
 export type MockTypes = {
   appConfig?: GramJsAppConfig;
   users: MockUser[];
@@ -89,6 +95,8 @@ export type MockTypes = {
   documents: MockDocument[];
   dialogFilters: MockDialogFilter[];
   topPeers: string[];
+  // Quick replies of the current user; their messages live under the self peer
+  quickReplies?: MockQuickReply[];
 };
 
 export const MOCK_STARTING_DATE = 1_66_69_69_420;
