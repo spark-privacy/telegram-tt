@@ -11,7 +11,7 @@ import {
 } from './global';
 
 import {
-  DEBUG, STRICTERDOM_ENABLED,
+  DEBUG, IS_MOCKED_CLIENT, STRICTERDOM_ENABLED,
 } from './config';
 import { enableStrict, requestMutation } from './lib/fasterdom/fasterdom';
 import { selectChat, selectCurrentMessageList, selectPeerFullInfo, selectTabState } from './global/selectors';
@@ -47,6 +47,11 @@ if (STRICTERDOM_ENABLED) {
 if (IS_TAURI) {
   initTauriApi();
   setupTauriListeners();
+}
+
+if (IS_MOCKED_CLIENT) {
+  // Adds `window.demo` helpers that drive the mocked client during a demo
+  void import('./lib/gramjs/client/mockUtils/demoConsole');
 }
 
 const initializationPromise = init();

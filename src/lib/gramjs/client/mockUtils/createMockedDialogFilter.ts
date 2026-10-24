@@ -12,12 +12,15 @@ export default function createMockedDialogFilter(id: number, mockData: MockTypes
     includePeerIds = [],
     pinnedPeerIds = [],
     excludePeerIds = [],
+    title,
     ...rest
   } = dialogFilter;
 
   return new Api.DialogFilter({
     ...rest,
     id,
+    // The folder title is a formatted text, while mock data keeps it as a plain string
+    title: new Api.TextWithEntities({ text: title, entities: [] }),
     includePeers: includePeerIds.map((peer) => createMockedTypeInputPeer(peer, mockData)),
     pinnedPeers: pinnedPeerIds.map((peer) => createMockedTypeInputPeer(peer, mockData)),
     excludePeers: excludePeerIds.map((peer) => createMockedTypeInputPeer(peer, mockData)),
