@@ -92,6 +92,7 @@ let prevGlobal: {
   notifyDefaults?: Record<ApiNotifyPeerType, ApiPeerNotifySettings>;
   notifyExceptions?: Record<number, ApiPeerNotifySettings>;
   threadsByChatId: Record<string, GlobalState['messages']['byChatId'][string]['threadsById'] | undefined>;
+  noReplyReminders?: GlobalState['noReplyReminders'];
 } = initials.prevGlobal;
 
 let prepared: {
@@ -134,6 +135,10 @@ const updateFolderManagerThrottled = throttle(() => {
 }, UPDATE_THROTTLE);
 
 let inited = false;
+
+// Chats where a "no reply" reminder has gone off. They are kept on top of the list until
+// the chat is answered, so the sorting below has to know them outside of an update cycle
+let chatIdsWithDueReminder = new Set<string>();
 
 /* Getters */
 
@@ -262,6 +267,17 @@ export function updateFolderManager(global: GlobalState) {
   ));
 
   let affectedFolderIds: number[] = [];
+
+  if (global.noReplyReminders !== prevGlobal.noReplyReminders) {
+    prevGlobal.noReplyReminders = global.noReplyReminders;
+
+    const newChatIdsWithDueReminder = buildChatIdsWithDueReminder(global);
+    if (!areSetsEqual(chatIdsWithDueReminder, newChatIdsWithDueReminder)) {
+      chatIdsWithDueReminder = newChatIdsWithDueReminder;
+      // A chat that is waiting for an answer changes the order in every folder at once
+      affectedFolderIds = affectedFolderIds.concat(Object.keys(prepared.folderSummariesById).map(Number));
+    }
+  }
 
   if (isAllFullyLoadedChanged || isArchivedFullyLoadedChanged || isSavedFolderFullyLoadedChanged) {
     affectedFolderIds = affectedFolderIds.concat(
@@ -866,6 +882,22 @@ function updateResults(affectedFolderIds: number[]) {
   }
 }
 
+function buildChatIdsWithDueReminder(global: GlobalState) {
+  const chatIds = new Set<string>();
+
+  Object.entries(global.noReplyReminders).forEach(([chatId, chatReminders]) => {
+    if (Object.values(chatReminders).some((reminder) => reminder.isDue)) {
+      chatIds.add(chatId);
+    }
+  });
+
+  return chatIds;
+}
+
+function areSetsEqual(left: Set<string>, right: Set<string>) {
+  return left.size === right.size && Array.from(left).every((item) => right.has(item));
+}
+
 function buildFolderOrderedIds(folderId: number) {
   const folderSummary = prepared.folderSummariesById[folderId];
   if (!folderSummary) {
@@ -885,7 +917,19 @@ function buildFolderOrderedIds(folderId: number) {
   const sortedPinnedIds = chatIds ? orderedPinnedIds?.filter((id) => chatIds.has(id)) : orderedPinnedIds;
   const allListIds = prevOrderedIds || (chatIds && Array.from(chatIds)) || [];
   const notPinnedIds = pinnedChatIds ? allListIds.filter((id) => !pinnedChatIds.has(id)) : allListIds;
+  // A chat that has been waiting for an answer is kept on top, right below the pinned ones
+  const shouldPullWaitingToTop = Boolean(chatIdsWithDueReminder.size) && !isSavedFolder;
+
   const sortedNotPinnedIds = notPinnedIds.sort((chatId1: string, chatId2: string) => {
+    if (shouldPullWaitingToTop) {
+      const isWaiting1 = chatIdsWithDueReminder.has(chatId1);
+      const isWaiting2 = chatIdsWithDueReminder.has(chatId2);
+
+      if (isWaiting1 !== isWaiting2) {
+        return isWaiting1 ? -1 : 1;
+      }
+    }
+
     return getOrderKey(chatId2, isSavedFolder) - getOrderKey(chatId1, isSavedFolder);
   });
 
@@ -1016,6 +1060,8 @@ function buildInitials() {
 
 function reset() {
   const newInitials = buildInitials();
+
+  chatIdsWithDueReminder = new Set();
 
   prevGlobal = newInitials.prevGlobal;
   prepared = newInitials.prepared;

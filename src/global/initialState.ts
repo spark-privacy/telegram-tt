@@ -116,6 +116,7 @@ export const INITIAL_SHARED_STATE: SharedState = {
 };
 
 export const INITIAL_GLOBAL_STATE: GlobalState = {
+  noReplyReminders: {},
   cacheVersion: 8,
   isInited: true,
   attachMenu: { bots: {} },

@@ -695,6 +695,17 @@ export interface TabThread {
   viewportIds?: number[];
 }
 
+// A local reminder that an outgoing message has not been answered yet
+export type NoReplyReminder = {
+  chatId: string;
+  messageId: number;
+  // Date of the message that is waiting for an answer, in seconds
+  since: number;
+  // When the reminder goes off, in milliseconds
+  dueAt: number;
+  isDue?: boolean;
+};
+
 export interface ThreadReadState {
   unreadCount?: number;
   unreadMentionsCount?: number;

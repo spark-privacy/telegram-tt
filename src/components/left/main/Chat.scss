@@ -287,6 +287,10 @@
       .draft {
         color: var(--color-error);
       }
+
+      .no-reply-reminder {
+        color: var(--color-primary);
+      }
     }
 
     .last-message {
@@ -415,6 +419,10 @@
       --background-color: var(--color-chat-active) !important;
 
       .title .custom-emoji {
+        color: var(--color-white);
+      }
+
+      .no-reply-reminder {
         color: var(--color-white);
       }
 

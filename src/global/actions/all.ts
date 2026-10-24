@@ -34,6 +34,7 @@ import './ui/aiMessageEditor';
 import './ui/users';
 import './ui/settings';
 import './ui/misc';
+import './ui/noReplyReminders';
 import './ui/payments';
 import './ui/calls';
 import './ui/mediaViewer';

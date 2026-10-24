@@ -1641,6 +1641,13 @@ export function deleteMessages<T extends GlobalState>(
     const chat = selectChat(global, chatId);
     if (!chat) return;
 
+    // A deleted message has nothing left to wait an answer for
+    ids.forEach((id) => {
+      if (global.noReplyReminders[chatId]?.[id]) {
+        actions.cancelNoReplyReminder({ chatId, messageId: id });
+      }
+    });
+
     const threadIdsToUpdate = new Set<ThreadId>();
     threadIdsToUpdate.add(MAIN_THREAD_ID);
 

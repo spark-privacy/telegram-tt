@@ -23,6 +23,7 @@ import { getMessageSenderName } from '../../../../global/helpers/peers';
 import { waitStartingTransitionsEnd } from '../../../../util/animations/waitTransitionEnd';
 import buildClassName from '../../../../util/buildClassName';
 import { isUserId } from '../../../../util/entities/ids';
+import { getServerTime } from '../../../../util/serverTime';
 import renderText from '../../../common/helpers/renderText';
 import { renderTextWithEntities } from '../../../common/helpers/renderTextWithEntities';
 import { ChatAnimationTypes } from './useChatAnimationType';
@@ -43,6 +44,8 @@ import TypingStatus from '../../../common/TypingStatus';
 
 import styles from '../../../common/ChatGroupedLastMessage.module.scss';
 
+const SECONDS_IN_DAY = 24 * 60 * 60;
+
 function getLatestTypingStatusTimestamp(typingStatusByPeerId?: Record<string, ApiTypingStatus>) {
   if (!typingStatusByPeerId) {
     return undefined;
@@ -61,6 +64,7 @@ export default function useChatListEntry({
   statefulMediaContent,
   chatId,
   typingStatusByPeerId,
+  noReplyReminderSince,
   draft,
   lastMessageTopic,
   lastMessageSender,
@@ -83,6 +87,7 @@ export default function useChatListEntry({
   statefulMediaContent: StatefulMediaContent | undefined;
   chatId: string;
   typingStatusByPeerId?: Record<string, ApiTypingStatus>;
+  noReplyReminderSince?: number;
   draft?: ApiDraft;
   lastMessageTopic?: ApiTopic;
   lastMessageSender?: ApiPeer;
@@ -145,6 +150,21 @@ export default function useChatListEntry({
   const isRoundVideo = Boolean(lastMessage && getMessageRoundVideo(lastMessage));
 
   const renderLastMessageOrTyping = useCallback(() => {
+    // A chat that is waiting for an answer says so instead of previewing the last message
+    if (noReplyReminderSince && !isSavedDialog && !isPreview) {
+      const days = Math.floor((getServerTime() - noReplyReminderSince) / SECONDS_IN_DAY);
+
+      return (
+        <p className="last-message" dir={lang.isRtl ? 'auto' : 'ltr'}>
+          <span className="no-reply-reminder">
+            {days > 0
+              ? lang('ChatListNoReplyDays', { count: days }, { pluralValue: days })
+              : lang('ChatListNoReplyToday')}
+          </span>
+        </p>
+      );
+    }
+
     const latestTypingStatusTimestamp = getLatestTypingStatusTimestamp(typingStatusByPeerId);
 
     if (!isSavedDialog && !isPreview
@@ -205,6 +225,7 @@ export default function useChatListEntry({
   }, [
     chat, chatId, draft, isRoundVideo, isTopic, lang, lastMessage, lastMessageSender, lastMessageTopic,
     mediaBlobUrl, mediaThumbnail, observeIntersection, typingStatusByPeerId, isSavedDialog, isPreview,
+    noReplyReminderSince,
   ]);
 
   function renderSubtitle() {

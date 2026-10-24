@@ -151,11 +151,20 @@ type OwnProps = {
   onSendPaidReaction?: NoneToVoidFunction;
   onShowPaidReactionModal?: NoneToVoidFunction;
   onReactionPickerOpen?: (position: IAnchorPosition) => void;
+  canRemindIfNoReply?: boolean;
+  hasNoReplyReminder?: boolean;
+  onRemindIfNoReply?: (delayMs: number) => void;
+  onRemindAtCustomTime?: NoneToVoidFunction;
+  onCancelNoReplyReminder?: NoneToVoidFunction;
   userFullName?: string;
   canGift?: boolean;
   canSendGram?: boolean;
   noForwardsNotice?: string;
 };
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+const THREE_DAYS_MS = 3 * DAY_MS;
+const WEEK_MS = 7 * DAY_MS;
 
 const SCROLLBAR_WIDTH = 10;
 const REACTION_SELECTOR_WIDTH_REM = 19.25;
@@ -188,6 +197,8 @@ const MessageContextMenu = ({
   canReply,
   canQuote,
   canEdit,
+  canRemindIfNoReply,
+  hasNoReplyReminder,
   canAppendTodoList,
   noReplies,
   canPin,
@@ -227,6 +238,9 @@ const MessageContextMenu = ({
   onReply,
   onOpenThread,
   onEdit,
+  onRemindIfNoReply,
+  onRemindAtCustomTime,
+  onCancelNoReplyReminder,
   onAppendTodoList,
   onPin,
   onUnpin,
@@ -489,6 +503,34 @@ const MessageContextMenu = ({
           </MenuItem>
         )}
         {canEdit && <MenuItem icon="edit" onClick={onEdit}>{lang('Edit')}</MenuItem>}
+        {canRemindIfNoReply && !hasNoReplyReminder && (
+          <NestedMenuItem
+            icon="schedule"
+            submenu={(
+              <>
+                <MenuItem onClick={() => onRemindIfNoReply?.(DAY_MS)}>
+                  {lang('RemindInOneDay')}
+                </MenuItem>
+                <MenuItem onClick={() => onRemindIfNoReply?.(THREE_DAYS_MS)}>
+                  {lang('RemindInThreeDays')}
+                </MenuItem>
+                <MenuItem onClick={() => onRemindIfNoReply?.(WEEK_MS)}>
+                  {lang('RemindInOneWeek')}
+                </MenuItem>
+                <MenuItem onClick={onRemindAtCustomTime}>
+                  {lang('RemindAtCustomTime')}
+                </MenuItem>
+              </>
+            )}
+          >
+            {lang('MessageRemindIfNoReply')}
+          </NestedMenuItem>
+        )}
+        {canRemindIfNoReply && hasNoReplyReminder && (
+          <MenuItem icon="schedule" onClick={onCancelNoReplyReminder}>
+            {lang('CancelNoReplyReminder')}
+          </MenuItem>
+        )}
         {canAppendTodoList && (
           <MenuItem icon="add" onClick={onAppendTodoList}>
             {lang('MenuButtonAppendTodoList')}

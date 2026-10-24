@@ -301,6 +301,7 @@ type StateProps = {
   threadId?: ThreadId;
   isPinnedList?: boolean;
   isPinned?: boolean;
+  hasNoReplyReminder?: boolean;
   isMessagePrimaryEditedDateEnabled: boolean;
   canAutoLoadMedia?: boolean;
   canAutoPlayMedia?: boolean;
@@ -439,6 +440,7 @@ const Message = ({
   messageListType,
   isPinnedList,
   isPinned,
+  hasNoReplyReminder,
   isMessagePrimaryEditedDateEnabled,
   isDownloading,
   canAutoLoadMedia,
@@ -1198,6 +1200,7 @@ const Message = ({
       <MessageMeta
         message={message}
         isPinned={isPinned}
+        hasNoReplyReminder={hasNoReplyReminder}
         withFullDate={isChatWithSelf && !isOwn}
         isMessagePrimaryEditedDateEnabled={isMessagePrimaryEditedDateEnabled}
         noReplies={noReplies}
@@ -2330,6 +2333,7 @@ export default memo(withGlobal<OwnProps>(
       isDownloading,
       isPinnedList: messageListType === 'pinned',
       isPinned,
+      hasNoReplyReminder: Boolean(global.noReplyReminders[chatId]?.[id]),
       isMessagePrimaryEditedDateEnabled: Boolean(global.appConfig.isMessagePrimaryEditedDateEnabled),
       canAutoLoadMedia: selectCanAutoLoadMedia(global, message),
       canAutoPlayMedia: selectCanAutoPlayMedia(global, message),

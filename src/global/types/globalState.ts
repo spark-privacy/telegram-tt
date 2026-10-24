@@ -78,6 +78,7 @@ import type {
   ChatListType,
   ChatTranslatedMessages,
   EmojiKeywords,
+  NoReplyReminder,
   OrderMode,
   RepeatMode,
   ServiceNotification,
@@ -476,6 +477,9 @@ export type GlobalState = {
     byHash: Record<string, ApiWebSession>;
     orderedHashes: string[];
   };
+
+  // Keyed by chat id and then by the id of the message that is waiting for an answer
+  noReplyReminders: Record<string, Record<number, NoReplyReminder>>;
 
   settings: {
     byKey: AccountSettings;

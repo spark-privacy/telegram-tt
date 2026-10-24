@@ -26,6 +26,7 @@
   .message-replies,
   .message-translated,
   .message-pinned,
+  .message-no-reply-reminder,
   .message-effect-icon {
     font-size: 0.75rem;
     white-space: nowrap;
@@ -63,7 +64,8 @@
     }
   }
 
-  .message-pinned {
+  .message-pinned,
+  .message-no-reply-reminder {
     margin-inline-end: 0.1875rem;
   }
 

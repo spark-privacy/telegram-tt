@@ -35,6 +35,7 @@ type OwnProps = {
   repliesThreadInfo?: ApiThreadInfo;
   isTranslated?: boolean;
   isPinned?: boolean;
+  hasNoReplyReminder?: boolean;
   withFullDate?: boolean;
   isMessagePrimaryEditedDateEnabled: boolean;
   effectEmoji?: string;
@@ -56,6 +57,7 @@ const MessageMeta = ({
   noReplies,
   isTranslated,
   isPinned,
+  hasNoReplyReminder,
   withFullDate,
   effectEmoji,
   onClick,
@@ -197,6 +199,9 @@ const MessageMeta = ({
       )}
       {isPinned && (
         <Icon name="pin-filled" className="message-pinned" />
+      )}
+      {hasNoReplyReminder && (
+        <Icon name="schedule" className="message-no-reply-reminder" />
       )}
       {signature && (
         <span className="message-signature">{renderText(signature)}</span>

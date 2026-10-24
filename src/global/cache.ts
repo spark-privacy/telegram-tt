@@ -558,6 +558,7 @@ function reduceGlobal<T extends GlobalState>(global: T) {
       'availableEffectById',
       'walletCurrency',
       'currencyRates',
+      'noReplyReminders',
     ]),
     lastIsChatInfoShown: !getIsMobile() ? global.lastIsChatInfoShown : undefined,
     stickers: reduceStickers(global),

@@ -1729,6 +1729,27 @@ export interface ActionPayloads {
     messageId: number;
   };
   loadQuickReplies: undefined;
+
+  setNoReplyReminder: {
+    chatId: string;
+    messageId: number;
+    dueAt: number;
+  };
+  cancelNoReplyReminder: {
+    chatId: string;
+    messageId: number;
+  };
+  cancelNoReplyRemindersInChat: {
+    chatId: string;
+  };
+  snoozeNoReplyReminder: {
+    chatId: string;
+    messageId: number;
+  };
+  markNoReplyReminderDue: {
+    chatId: string;
+    messageId: number;
+  } & WithTabId;
   sendQuickReply: {
     chatId: string;
     quickReplyId: number;

@@ -32,6 +32,7 @@ import {
   selectChatFullInfo,
   selectChatLastMessageInfo,
   selectCurrentMessageList,
+  selectDueNoReplyReminderSince,
   selectIsCurrentUserFrozen,
   selectIsCurrentUserPremium,
   selectIsForumPanelClosed,
@@ -116,6 +117,8 @@ type StateProps = {
   canScrollDown?: boolean;
   canChangeFolder?: boolean;
   typingStatusByPeerId?: Record<string, ApiTypingStatus>;
+  // Date of the oldest message in this chat that is still waiting for an answer, in seconds
+  noReplyReminderSince?: number;
   withInterfaceAnimations?: boolean;
   communityFullInfo?: ApiChatFullInfo;
   currentUserId: string;
@@ -152,6 +155,7 @@ const Chat = ({
   canScrollDown,
   canChangeFolder,
   typingStatusByPeerId,
+  noReplyReminderSince,
   communityFullInfo,
   isSavedDialog,
   currentUserId,
@@ -255,6 +259,7 @@ const Chat = ({
     lastMessage,
     communityMembers,
     typingStatusByPeerId,
+    noReplyReminderSince,
     draft,
     statefulMediaContent: groupStatefulContent({ story: lastMessageStory }),
     lastMessageTopic,
@@ -657,6 +662,7 @@ export default memo(withGlobal<OwnProps>(
       user,
       userStatus,
       typingStatusByPeerId,
+      noReplyReminderSince: selectDueNoReplyReminderSince(global, chatId),
       withInterfaceAnimations: selectCanAnimateInterface(global),
       currentUserId: global.currentUserId!,
       topicsInfo,

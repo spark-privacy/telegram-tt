@@ -412,6 +412,16 @@ export interface LangPair {
   'SettingsKeyboard': undefined;
   'SettingsAutomaticTextReplacements': undefined;
   'SettingsAutomaticTextReplacementsInfo': undefined;
+  'MessageRemindIfNoReply': undefined;
+  'RemindInOneDay': undefined;
+  'RemindInThreeDays': undefined;
+  'RemindInOneWeek': undefined;
+  'RemindAtCustomTime': undefined;
+  'CancelNoReplyReminder': undefined;
+  'NoReplyReminderSet': undefined;
+  'NoReplyReminderTitle': undefined;
+  'NoReplyReminderOpenChat': undefined;
+  'ChatListNoReplyToday': undefined;
   'SettingsOfflineNotificationUnsupported': undefined;
   'TextSize': undefined;
   'ChatBackground': undefined;
@@ -3484,6 +3494,9 @@ export interface LangPairWithVariables<V = LangVariable> {
   'AutodownloadSizeLimitUpTo': {
     'limit': V;
   };
+  'NoReplyReminderDescription': {
+    'name': V;
+  };
   'AutoDeleteSetInfo': {
     'time': V;
   };
@@ -5564,6 +5577,9 @@ export interface LangPairPluralWithVariables<V = LangVariable> {
     'count': V;
   };
   'Months': {
+    'count': V;
+  };
+  'ChatListNoReplyDays': {
     'count': V;
   };
   'Users': {

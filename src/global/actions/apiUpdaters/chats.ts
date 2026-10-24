@@ -235,6 +235,11 @@ addActionHandler('apiUpdate', (global, actions, update): ActionReturnType => {
         return undefined;
       }
 
+      // Any message from the other side counts as an answer; a reaction does not
+      if (!isLocal && global.noReplyReminders[chatId]) {
+        actions.cancelNoReplyRemindersInChat({ chatId });
+      }
+
       const hasMention = Boolean(message.hasUnreadMention);
 
       if (!isLocal || chat.id === SERVICE_NOTIFICATIONS_USER_ID) {

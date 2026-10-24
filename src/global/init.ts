@@ -1,3 +1,5 @@
+import './noReplyReminderTimer';
+
 import type { ActionReturnType, GlobalState } from './types';
 
 import { IS_MULTIACCOUNT_SUPPORTED } from '../util/browser/globalEnvironment';
