@@ -412,6 +412,8 @@ export interface LangPair {
   'SettingsKeyboard': undefined;
   'SettingsAutomaticTextReplacements': undefined;
   'SettingsAutomaticTextReplacementsInfo': undefined;
+  'SettingsUnreadPrivateChatsOnTop': undefined;
+  'SettingsUnreadPrivateChatsOnTopInfo': undefined;
   'SettingsOfflineNotificationUnsupported': undefined;
   'TextSize': undefined;
   'ChatBackground': undefined;

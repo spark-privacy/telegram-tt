@@ -489,6 +489,8 @@
 "SettingsKeyboard" = "Keyboard";
 "SettingsAutomaticTextReplacements" = "Automatic text replacements";
 "SettingsAutomaticTextReplacementsInfo" = "Convert --, << and >> as you type";
+"SettingsUnreadPrivateChatsOnTop" = "Keep unread chats on top";
+"SettingsUnreadPrivateChatsOnTopInfo" = "Unread chats with people stay above channels and groups until you read them. Muted and archived chats are not moved.";
 "SettingsOfflineNotificationUnsupported" = "Not supported";
 "TextSize" = "Message Font Size";
 "ChatBackground" = "Chat Wallpaper";

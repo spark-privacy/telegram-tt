@@ -108,6 +108,7 @@ export const INITIAL_SHARED_STATE: SharedState = {
     wasTimeFormatSetManually: false,
     isConnectionStatusMinimized: true,
     canDisplayChatInTitle: true,
+    shouldKeepUnreadPrivateChatsOnTop: false,
     shouldAllowHttpTransport: true,
     shouldWarnAboutFiles: true,
     shouldKeepLockScreenBackground: true,

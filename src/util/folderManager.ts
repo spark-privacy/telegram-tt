@@ -17,12 +17,14 @@ import { getIsChatMuted, mergeNotifySettings } from '../global/helpers/notificat
 import {
   selectChat,
   selectChatLastMessage,
+  selectChatMessage,
   selectIsChatRestricted,
   selectNotifyDefaults,
   selectTabState,
   selectTopics,
 } from '../global/selectors';
-import { selectDraft, selectThreadReadState } from '../global/selectors/threads';
+import { selectSharedSettings } from '../global/selectors/sharedState';
+import { selectDraft, selectThreadLocalStateParam, selectThreadReadState } from '../global/selectors/threads';
 import { areRecordsShallowEqual } from './areShallowEqual';
 import { createCallbackManager } from './callbacks';
 import { areSortedArraysEqual, unique } from './iteratees';
@@ -56,6 +58,8 @@ interface ChatSummary {
   isUnread: boolean;
   unreadCount?: number;
   unreadMentionsCount?: number;
+  // Date of the first unread incoming message, when its message is loaded
+  unreadSince?: number;
   linkedCommunityId?: string;
   orderInAll: number;
   orderInSaved: number;
@@ -134,6 +138,10 @@ const updateFolderManagerThrottled = throttle(() => {
 }, UPDATE_THROTTLE);
 
 let inited = false;
+
+// Mirrors `shouldKeepUnreadPrivateChatsOnTop` from the shared settings: the sorting in
+// `buildFolderOrderedIds` runs outside of an update cycle and has no access to the global state
+let shouldKeepUnreadPrivateChatsOnTop = false;
 
 /* Getters */
 
@@ -262,6 +270,15 @@ export function updateFolderManager(global: GlobalState) {
   ));
 
   let affectedFolderIds: number[] = [];
+
+  const newShouldKeepUnreadPrivateChatsOnTop = Boolean(
+    selectSharedSettings(global).shouldKeepUnreadPrivateChatsOnTop,
+  );
+  if (newShouldKeepUnreadPrivateChatsOnTop !== shouldKeepUnreadPrivateChatsOnTop) {
+    shouldKeepUnreadPrivateChatsOnTop = newShouldKeepUnreadPrivateChatsOnTop;
+    // The setting changes the order in every folder at once
+    affectedFolderIds = affectedFolderIds.concat(Object.keys(prepared.folderSummariesById).map(Number));
+  }
 
   if (isAllFullyLoadedChanged || isArchivedFullyLoadedChanged || isSavedFolderFullyLoadedChanged) {
     affectedFolderIds = affectedFolderIds.concat(
@@ -622,6 +639,7 @@ function buildChatSummary<T extends GlobalState>(
   const chatReadState = selectThreadReadState(global, chat.id, MAIN_THREAD_ID);
   const {
     unreadCount: chatUnreadCount, unreadMentionsCount: chatUnreadMentionsCount, hasUnreadMark,
+    lastReadInboxMessageId,
   } = chatReadState || {};
 
   const { unreadCount, unreadMentionsCount } = isForum
@@ -639,6 +657,8 @@ function buildChatSummary<T extends GlobalState>(
   const shouldHideServiceChat = chat.id === SERVICE_NOTIFICATIONS_USER_ID && (
     !lastMessage || lastMessage.content.action?.type === 'historyClear'
   );
+
+  const unreadSince = getUnreadSince(global, id, unreadCount, lastReadInboxMessageId, lastMessage?.date);
 
   const orderInAll = isCommunity && communityOrder
     ? communityOrder
@@ -661,12 +681,41 @@ function buildChatSummary<T extends GlobalState>(
     isUnread: Boolean(unreadCount || unreadMentionsCount || hasUnreadMark),
     unreadCount,
     unreadMentionsCount,
+    unreadSince,
     linkedCommunityId,
     isUserBot: userInfo ? userInfo.type === 'userTypeBot' : undefined,
     isUserContact: userInfo ? userInfo.isContact : undefined,
     orderInAll,
     orderInSaved,
   };
+}
+
+// How long the chat has been waiting for an answer. The exact date is only available when the
+// first unread message itself is loaded, so the date of the last message is used as a fallback.
+function getUnreadSince<T extends GlobalState>(
+  global: T,
+  chatId: string,
+  unreadCount?: number,
+  lastReadInboxMessageId?: number,
+  lastMessageDate?: number,
+) {
+  if (!unreadCount || !lastReadInboxMessageId) {
+    return lastMessageDate;
+  }
+
+  const listedIds = selectThreadLocalStateParam(global, chatId, MAIN_THREAD_ID, 'listedIds');
+  const firstUnreadId = listedIds?.find((messageId) => {
+    if (messageId <= lastReadInboxMessageId) {
+      return false;
+    }
+
+    const message = selectChatMessage(global, chatId, messageId);
+    return Boolean(message && !message.isOutgoing);
+  });
+
+  const firstUnreadDate = firstUnreadId ? selectChatMessage(global, chatId, firstUnreadId)?.date : undefined;
+
+  return firstUnreadDate || lastMessageDate;
 }
 
 function buildChatFolderIds(chatSummary: ChatSummary, folderSummaries: FolderSummary[]) {
@@ -866,6 +915,20 @@ function updateResults(affectedFolderIds: number[]) {
   }
 }
 
+function isWaitingForReply(chatId: string) {
+  const summary = prepared.chatSummariesById.get(chatId);
+
+  return Boolean(
+    summary?.isUnread && summary.type === 'chatTypePrivate'
+    && !summary.isUserBot && !summary.isMuted && !summary.isArchived,
+  );
+}
+
+function getUnreadSinceKey(chatId: string) {
+  // A chat with an unknown date goes below the ones that have it
+  return prepared.chatSummariesById.get(chatId)?.unreadSince || Number.MAX_SAFE_INTEGER;
+}
+
 function buildFolderOrderedIds(folderId: number) {
   const folderSummary = prepared.folderSummariesById[folderId];
   if (!folderSummary) {
@@ -885,7 +948,25 @@ function buildFolderOrderedIds(folderId: number) {
   const sortedPinnedIds = chatIds ? orderedPinnedIds?.filter((id) => chatIds.has(id)) : orderedPinnedIds;
   const allListIds = prevOrderedIds || (chatIds && Array.from(chatIds)) || [];
   const notPinnedIds = pinnedChatIds ? allListIds.filter((id) => !pinnedChatIds.has(id)) : allListIds;
+  // Unread personal chats are kept on top of every folder except Archived and Saved
+  const shouldPullUnreadToTop = shouldKeepUnreadPrivateChatsOnTop
+    && !isSavedFolder && folderId !== ARCHIVED_FOLDER_ID;
+
   const sortedNotPinnedIds = notPinnedIds.sort((chatId1: string, chatId2: string) => {
+    if (shouldPullUnreadToTop) {
+      const isWaiting1 = isWaitingForReply(chatId1);
+      const isWaiting2 = isWaitingForReply(chatId2);
+
+      if (isWaiting1 !== isWaiting2) {
+        return isWaiting1 ? -1 : 1;
+      }
+
+      if (isWaiting1) {
+        // The one that has been waiting longer goes higher
+        return getUnreadSinceKey(chatId1) - getUnreadSinceKey(chatId2);
+      }
+    }
+
     return getOrderKey(chatId2, isSavedFolder) - getOrderKey(chatId1, isSavedFolder);
   });
 
@@ -1016,6 +1097,8 @@ function buildInitials() {
 
 function reset() {
   const newInitials = buildInitials();
+
+  shouldKeepUnreadPrivateChatsOnTop = false;
 
   prevGlobal = newInitials.prevGlobal;
   prepared = newInitials.prepared;

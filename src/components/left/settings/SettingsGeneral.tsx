@@ -37,7 +37,8 @@ type StateProps =
     'shouldReplaceTextShortcuts' |
     'timeFormat' |
     'theme' |
-    'shouldUseSystemTheme'
+    'shouldUseSystemTheme' |
+    'shouldKeepUnreadPrivateChatsOnTop'
   )>;
 
 const SettingsGeneral = ({
@@ -48,6 +49,7 @@ const SettingsGeneral = ({
   timeFormat,
   theme,
   shouldUseSystemTheme,
+  shouldKeepUnreadPrivateChatsOnTop,
   onReset,
 }: OwnProps & StateProps) => {
   const {
@@ -118,6 +120,10 @@ const SettingsGeneral = ({
     setSharedSettingOption({ shouldReplaceTextShortcuts: shouldReplace });
   });
 
+  const handleUnreadPrivateChatsOnTopChange = useLastCallback((isChecked: boolean) => {
+    setSharedSettingOption({ shouldKeepUnreadPrivateChatsOnTop: isChecked });
+  });
+
   useHistoryBack({
     isActive,
     onBack: onReset,
@@ -142,6 +148,16 @@ const SettingsGeneral = ({
         >
           {lang('ChatBackground')}
         </ListItem>
+      </Island>
+
+      <IslandTitle dir={lang.isRtl ? 'rtl' : undefined}>{lang('Chats')}</IslandTitle>
+      <Island>
+        <Checkbox
+          label={lang('SettingsUnreadPrivateChatsOnTop')}
+          subLabel={lang('SettingsUnreadPrivateChatsOnTopInfo')}
+          checked={shouldKeepUnreadPrivateChatsOnTop}
+          onCheck={handleUnreadPrivateChatsOnTopChange}
+        />
       </Island>
 
       <IslandTitle dir={lang.isRtl ? 'rtl' : undefined}>{lang('Theme')}</IslandTitle>
@@ -194,6 +210,7 @@ export default memo(withGlobal<OwnProps>(
       shouldReplaceTextShortcuts,
       messageTextSize,
       timeFormat,
+      shouldKeepUnreadPrivateChatsOnTop,
     } = selectSharedSettings(global);
 
     return {
@@ -203,6 +220,7 @@ export default memo(withGlobal<OwnProps>(
       timeFormat,
       theme,
       shouldUseSystemTheme,
+      shouldKeepUnreadPrivateChatsOnTop,
     };
   },
 )(SettingsGeneral));

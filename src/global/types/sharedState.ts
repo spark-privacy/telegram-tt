@@ -30,6 +30,7 @@ export interface SharedSettings {
   wasTimeFormatSetManually: boolean;
   isConnectionStatusMinimized: boolean;
   canDisplayChatInTitle: boolean;
+  shouldKeepUnreadPrivateChatsOnTop: boolean;
   shouldForceHttpTransport?: boolean;
   shouldAllowHttpTransport?: boolean;
   shouldCollectDebugLogs?: boolean;
