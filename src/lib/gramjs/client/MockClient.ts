@@ -145,7 +145,12 @@ class TelegramClient {
     }
 
     if (this.mockData.appConfig && request instanceof Api.help.GetAppConfig) {
-      return createMockedJSON(this.mockData.appConfig);
+      // The client reads `config` out of the response, and until it gets one it keeps
+      // the app config "not loaded", which holds back the rest of the initial requests
+      return new Api.help.AppConfig({
+        config: createMockedJSON(this.mockData.appConfig),
+        hash: 1,
+      });
     }
 
     if (request instanceof Api.messages.GetDiscussionMessage) {
@@ -227,16 +232,23 @@ class TelegramClient {
     }
 
     if (request instanceof Api.users.GetFullUser) {
+      // The client reads the current user from `users`, and without it there is no
+      // `currentUserId` at all, so everything that depends on it stays switched off
+      const peerId = request.id instanceof Api.InputUserSelf
+        ? this.mockData.users.find((user) => user.self)?.id
+        : getIdFromInputPeer(request.id as any);
+      const user = peerId ? createMockedUser(peerId, this.mockData) : undefined;
+
       return new Api.users.UserFull({
         fullUser: new Api.UserFull({
           about: 'lol',
           settings: new Api.PeerSettings({}),
           notifySettings: new Api.PeerNotifySettings({}),
-          id: 1n,
+          id: user ? user.id : 1n,
           commonChatsCount: 0,
         }),
         chats: [],
-        users: [],
+        users: user ? [user] : [],
       });
     }
 
@@ -280,6 +292,25 @@ class TelegramClient {
           ...this.mockData.dialogFilters
             .map((dialogFilter) => createMockedDialogFilter(dialogFilter.id, this.mockData)),
         ],
+      });
+    }
+
+    if (request instanceof Api.messages.GetQuickReplies) {
+      const quickReplies = this.mockData.quickReplies || [];
+      const selfId = this.mockData.users.find((user) => user.self)?.id;
+
+      return new Api.messages.QuickReplies({
+        quickReplies: quickReplies.map(({ shortcutId, shortcut, topMessageId }) => new Api.QuickReply({
+          shortcutId,
+          shortcut,
+          topMessage: topMessageId,
+          count: 1,
+        })),
+        messages: selfId
+          ? quickReplies.map(({ topMessageId }) => createMockedMessage(selfId, topMessageId, this.mockData))
+          : [],
+        chats: [],
+        users: [],
       });
     }
 
@@ -460,6 +491,8 @@ class TelegramClient {
   }
 
   public setPingCallback() {}
+
+  public setIsPremium() {}
 
   public setShouldDebugExportedSenders() {}
 

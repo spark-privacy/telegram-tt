@@ -1,10 +1,12 @@
 {
+  "appConfig": {},
   "users": [
     {
       "id": "1",
       "self": true,
       "firstName": "Марина",
-      "lastName": ""
+      "lastName": "",
+      "premium": true
     },
     {
       "id": "101",
@@ -295,6 +297,26 @@
         "date": -4000,
         "entities": []
       }
+    ],
+    "1": [
+      {
+        "id": 2001,
+        "message": "Здравствуйте, {name}! Пришлю смету до {tomorrow}.",
+        "entities": [],
+        "out": true
+      },
+      {
+        "id": 2002,
+        "message": "{name}, спасибо! Отвечу до конца дня.",
+        "entities": [],
+        "out": true
+      },
+      {
+        "id": 2003,
+        "message": "Сегодня {date}. С уважением, {my_name}.",
+        "entities": [],
+        "out": true
+      }
     ]
   },
   "availableReactions": [
@@ -348,5 +370,22 @@
       "mimeType": "application/x-tgsticker"
     }
   ],
-  "topPeers": []
+  "topPeers": [],
+  "quickReplies": [
+    {
+      "shortcutId": 1,
+      "shortcut": "quote",
+      "topMessageId": 2001
+    },
+    {
+      "shortcutId": 2,
+      "shortcut": "thanks",
+      "topMessageId": 2002
+    },
+    {
+      "shortcutId": 3,
+      "shortcut": "sign",
+      "topMessageId": 2003
+    }
+  ]
 }
