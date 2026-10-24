@@ -17,13 +17,32 @@ import createMockedJSON from './mockUtils/createMockedJSON';
 import createMockedMessage from './mockUtils/createMockedMessage';
 import createMockedTypePeer from './mockUtils/createMockedTypePeer';
 import createMockedUser from './mockUtils/createMockedUser';
+import { startDemoBridge } from './mockUtils/demoBridge';
 import getDocumentIdFromLocation from './mockUtils/getDocumentIdFromLocation';
 import getIdFromInputPeer from './mockUtils/getIdFromInputPeer';
 import { downloadFile } from './downloadFile';
 
 import MockSender from './MockSender';
+import { MOCK_STARTING_PTS } from './mockUtils/MockTypes';
 
 const sizeTypes: SizeType[] = ['u', 'v', 'w', 'y', 'd', 'x', 'c', 'm', 'b', 'a', 's', 'f'];
+
+// The demo scenario is the default one here, so a plain reload keeps the demo data
+const DEFAULT_SCENARIO = 'demo';
+
+// Demo scenarios keep message dates relative so the list always looks fresh:
+// a date that is zero or negative means "so many seconds ago"
+function applyRelativeDates(mockData: MockTypes) {
+  const nowSeconds = Math.floor(Date.now() / 1000);
+
+  Object.values(mockData.messages).forEach((messages) => {
+    messages.forEach((message) => {
+      if (message.date !== undefined && message.date <= 0) {
+        message.date = nowSeconds + message.date;
+      }
+    });
+  });
+}
 
 class TelegramClient {
   private invokeMiddleware?: <A, R>(mockClient: TelegramClient, request: Api.Request<A, R>)
@@ -62,7 +81,7 @@ class TelegramClient {
     });
   }
 
-  async loadScenario(scenario = 'default'): Promise<void> {
+  async loadScenario(scenario = DEFAULT_SCENARIO): Promise<void> {
     try {
       const invokeMiddleware = await import(/* @vite-ignore */ `./__invokeMiddlewares__/${scenario}`);
 
@@ -72,6 +91,8 @@ class TelegramClient {
     }
     return import(`./__mocks__/${scenario}.json`).then(async (mockData) => {
       this.mockData = mockData as MockTypes;
+      applyRelativeDates(this.mockData);
+      startDemoBridge(this);
       await Promise.all(this.mockData.documents.map(async (l, i) => {
         const response = await import(/* @vite-ignore */ `./__data__/${l.url}`).then((module) => fetch(module.default));
         const bytes = await response.arrayBuffer();
@@ -82,7 +103,7 @@ class TelegramClient {
       this.callbacks.forEach(({ eventBuilder, callback }) => (callback(
         eventBuilder.build(new UpdateConnectionState(UpdateConnectionState.connected)),
       )));
-    }).catch(() => this.loadScenario());
+    }).catch(() => (scenario === DEFAULT_SCENARIO ? undefined : this.loadScenario()));
   }
 
   fireUpdate(update: Api.TypeUpdate) {
@@ -93,16 +114,26 @@ class TelegramClient {
     return createMockedUser(id, this.mockData);
   }
 
-  getDialogs(type: 'active' | 'archived' = 'active') {
-    return this.mockData.dialogs[type].map((dialog) => createMockedDialog(dialog.id, this.mockData));
+  getDialogs(type: 'active' | 'archived' = 'active', shouldExcludePinned = false) {
+    return this.mockData.dialogs[type]
+      .filter((dialog) => !(shouldExcludePinned && dialog.pinned))
+      .map((dialog) => createMockedDialog(dialog.id, this.mockData));
   }
 
+  getPinnedDialogIds(type: 'active' | 'archived' = 'active') {
+    return this.mockData.dialogs[type].filter((dialog) => dialog.pinned).map((dialog) => dialog.id);
+  }
+
+  // The real client reports a ready connection through `onConnected`; without it the API
+  // never finishes initializing and every request stays queued forever
   start({
     mockScenario,
   }: {
-    mockScenario: string;
-  }) {
-    return this.loadScenario(mockScenario);
+    mockScenario?: string;
+  }, onConnected?: NoneToVoidFunction) {
+    return this.loadScenario(mockScenario).then(() => {
+      onConnected?.();
+    });
   }
 
   async invoke<A, R>(request: Api.Request<A, R>) {
@@ -242,19 +273,34 @@ class TelegramClient {
     }
 
     if (request instanceof Api.messages.GetDialogFilters) {
-      return [
-        new Api.DialogFilterDefault(),
-        ...this.mockData.dialogFilters
-          .map((dialogFilter) => createMockedDialogFilter(dialogFilter.id, this.mockData)),
-      ];
+      // The client expects the wrapper object, not a bare list of filters
+      return new Api.messages.DialogFilters({
+        filters: [
+          new Api.DialogFilterDefault(),
+          ...this.mockData.dialogFilters
+            .map((dialogFilter) => createMockedDialogFilter(dialogFilter.id, this.mockData)),
+        ],
+      });
+    }
+
+    if (request instanceof Api.updates.GetState) {
+      return new Api.updates.State({
+        pts: MOCK_STARTING_PTS,
+        qts: 0,
+        date: Math.floor(Date.now() / 1000),
+        seq: MOCK_STARTING_PTS,
+        unreadCount: 0,
+      });
     }
 
     if (request instanceof Api.messages.GetPinnedDialogs) {
+      const pinnedIds = this.getPinnedDialogIds(request.folderId ? 'archived' : 'active');
+
       return new Api.messages.PeerDialogs({
-        dialogs: [],
-        chats: [],
-        messages: [],
-        users: [],
+        dialogs: pinnedIds.map((id) => createMockedDialog(id, this.mockData)),
+        chats: pinnedIds.length ? this.getChatsAndChannels() : [],
+        messages: pinnedIds.flatMap((id) => this.getMessagesFrom(id)),
+        users: pinnedIds.length ? this.getUsers() : [],
         state: new Api.updates.State({
           pts: 0,
           qts: 0,
@@ -276,7 +322,7 @@ class TelegramClient {
       }
 
       return new Api.messages.Dialogs({
-        dialogs: this.getDialogs(),
+        dialogs: this.getDialogs('active', Boolean(request.excludePinned)),
         messages: this.getAllMessages(),
         chats: this.getChatsAndChannels(),
         users: this.getUsers(),

@@ -1,0 +1,352 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "self": true,
+      "firstName": "Марина",
+      "lastName": ""
+    },
+    {
+      "id": "101",
+      "firstName": "Анна",
+      "lastName": "Соколова"
+    },
+    {
+      "id": "102",
+      "firstName": "Игорь",
+      "lastName": "Смирнов"
+    },
+    {
+      "id": "103",
+      "firstName": "Мама",
+      "lastName": ""
+    },
+    {
+      "id": "104",
+      "firstName": "Павел",
+      "lastName": "Орлов"
+    }
+  ],
+  "chats": [
+    {
+      "id": "301",
+      "title": "Проект «Витрина»",
+      "participantsCount": 8
+    }
+  ],
+  "channels": [
+    {
+      "id": "201",
+      "title": "Новости дизайна",
+      "broadcast": true
+    },
+    {
+      "id": "202",
+      "title": "Код и кофе",
+      "broadcast": true
+    },
+    {
+      "id": "203",
+      "title": "Техно дайджест",
+      "broadcast": true
+    },
+    {
+      "id": "204",
+      "title": "Фото дня",
+      "broadcast": true
+    },
+    {
+      "id": "205",
+      "title": "Вакансии: продукт",
+      "broadcast": true
+    },
+    {
+      "id": "206",
+      "title": "Юридические новости",
+      "broadcast": true
+    }
+  ],
+  "dialogs": {
+    "active": [
+      {
+        "id": "301",
+        "pinned": true,
+        "topMessage": 1042,
+        "readInboxMaxId": 1039,
+        "unreadCount": 3
+      },
+      {
+        "id": "101",
+        "topMessage": 1002,
+        "readInboxMaxId": 1000,
+        "unreadCount": 2
+      },
+      {
+        "id": "102",
+        "topMessage": 1011,
+        "readInboxMaxId": 1010,
+        "unreadCount": 1
+      },
+      {
+        "id": "103",
+        "topMessage": 1020,
+        "readInboxMaxId": 1020,
+        "unreadCount": 0
+      },
+      {
+        "id": "104",
+        "topMessage": 1030,
+        "readInboxMaxId": 1029,
+        "unreadCount": 1,
+        "muteUntil": 2147483647
+      },
+      {
+        "id": "201",
+        "topMessage": 1051,
+        "readInboxMaxId": 1050,
+        "unreadCount": 1
+      },
+      {
+        "id": "202",
+        "topMessage": 1061,
+        "readInboxMaxId": 1060,
+        "unreadCount": 1
+      },
+      {
+        "id": "203",
+        "topMessage": 1071,
+        "readInboxMaxId": 1070,
+        "unreadCount": 1
+      },
+      {
+        "id": "204",
+        "topMessage": 1081,
+        "readInboxMaxId": 1080,
+        "unreadCount": 1
+      },
+      {
+        "id": "205",
+        "topMessage": 1091,
+        "readInboxMaxId": 1090,
+        "unreadCount": 1
+      },
+      {
+        "id": "206",
+        "topMessage": 1101,
+        "readInboxMaxId": 1100,
+        "unreadCount": 1
+      }
+    ],
+    "archived": []
+  },
+  "messages": {
+    "101": [
+      {
+        "id": 1000,
+        "message": "Добрый день! Отправила смету, посмотрите, пожалуйста.",
+        "date": -12600,
+        "entities": [],
+        "out": true
+      },
+      {
+        "id": 1001,
+        "message": "Марина, добрый день! Смету посмотрела, есть вопрос по срокам.",
+        "date": -10800,
+        "entities": []
+      },
+      {
+        "id": 1002,
+        "message": "И ещё: сможем начать на следующей неделе?",
+        "date": -9000,
+        "entities": []
+      }
+    ],
+    "102": [
+      {
+        "id": 1010,
+        "message": "Привет! Держи макет на проверку.",
+        "date": -7200,
+        "entities": [],
+        "out": true
+      },
+      {
+        "id": 1011,
+        "message": "Спасибо, посмотрю сегодня вечером.",
+        "date": -5400,
+        "entities": []
+      }
+    ],
+    "103": [
+      {
+        "id": 1020,
+        "message": "Не забудь позвонить бабушке 🙂",
+        "date": -1800,
+        "entities": []
+      }
+    ],
+    "104": [
+      {
+        "id": 1030,
+        "message": "Скинул правки в документ, глянь на досуге.",
+        "date": -14400,
+        "entities": []
+      }
+    ],
+    "301": [
+      {
+        "id": 1040,
+        "message": "Коллеги, созвон в 15:00.",
+        "date": -10000,
+        "entities": []
+      },
+      {
+        "id": 1041,
+        "message": "Я буду.",
+        "date": -9500,
+        "entities": []
+      },
+      {
+        "id": 1042,
+        "message": "Готовлю слайды к встрече.",
+        "date": -7200,
+        "entities": []
+      }
+    ],
+    "201": [
+      {
+        "id": 1050,
+        "message": "Подборка: как не сломать сетку на длинных страницах.",
+        "date": -7200,
+        "entities": []
+      },
+      {
+        "id": 1051,
+        "message": "Шрифт года: подробный разбор.",
+        "date": -60,
+        "entities": []
+      }
+    ],
+    "202": [
+      {
+        "id": 1060,
+        "message": "Код-ревью без боли: короткий чек-лист.",
+        "date": -8000,
+        "entities": []
+      },
+      {
+        "id": 1061,
+        "message": "Семь привычек спокойного релиза.",
+        "date": -120,
+        "entities": []
+      }
+    ],
+    "203": [
+      {
+        "id": 1070,
+        "message": "Железо недели: что стоит внимания.",
+        "date": -9000,
+        "entities": []
+      },
+      {
+        "id": 1071,
+        "message": "Что показали на конференции.",
+        "date": -300,
+        "entities": []
+      }
+    ],
+    "204": [
+      {
+        "id": 1080,
+        "message": "Кадр дня.",
+        "date": -9600,
+        "entities": []
+      },
+      {
+        "id": 1081,
+        "message": "Снимок недели: город в тумане.",
+        "date": -900,
+        "entities": []
+      }
+    ],
+    "205": [
+      {
+        "id": 1090,
+        "message": "Дизайнер в финтех, офис или удалённо.",
+        "date": -11000,
+        "entities": []
+      },
+      {
+        "id": 1091,
+        "message": "Продуктовый дизайнер, удалённо.",
+        "date": -2400,
+        "entities": []
+      }
+    ],
+    "206": [
+      {
+        "id": 1100,
+        "message": "Что изменилось в договорах оферты.",
+        "date": -12000,
+        "entities": []
+      },
+      {
+        "id": 1101,
+        "message": "Изменения в правилах рекламы.",
+        "date": -4000,
+        "entities": []
+      }
+    ]
+  },
+  "availableReactions": [
+    {
+      "reaction": "a",
+      "title": "Some Reaction",
+      "staticIconId": 1,
+      "animationId": 2,
+      "effectId": 4
+    },
+    {
+      "reaction": "b",
+      "title": "Some Reaction",
+      "staticIconId": 1,
+      "animationId": 3,
+      "effectId": 4
+    }
+  ],
+  "dialogFilters": [
+    {
+      "id": 2,
+      "title": "Работа",
+      "includePeerIds": [
+        "101",
+        "102",
+        "301"
+      ],
+      "pinnedPeerIds": [],
+      "excludePeerIds": []
+    }
+  ],
+  "documents": [
+    {
+      "id": 1,
+      "url": "lock.png",
+      "mimeType": "image/png"
+    },
+    {
+      "id": 2,
+      "url": "TestLottie1.tgs",
+      "mimeType": "application/x-tgsticker"
+    },
+    {
+      "id": 3,
+      "url": "TestLottie2.tgs",
+      "mimeType": "application/x-tgsticker"
+    },
+    {
+      "id": 4,
+      "url": "TestLottie3.tgs",
+      "mimeType": "application/x-tgsticker"
+    }
+  ],
+  "topPeers": []
+}

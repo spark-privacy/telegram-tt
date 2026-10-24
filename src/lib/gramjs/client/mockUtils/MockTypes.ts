@@ -4,6 +4,8 @@ import type Api from '../../tl/api';
 
 export type MockDialog = Partial<Api.Dialog> & {
   id: string;
+  // Unix timestamp; use `2147483647` for a chat muted forever
+  muteUntil?: number;
 };
 
 export type MockUser = Partial<Api.User> & {
@@ -90,3 +92,7 @@ export type MockTypes = {
 };
 
 export const MOCK_STARTING_DATE = 1_66_69_69_420;
+
+// Starting `pts` for the mocked updates state. The client drops updates until it knows
+// the state, and then only accepts the next `pts` in a row, so the mock has to keep count
+export const MOCK_STARTING_PTS = 100;
