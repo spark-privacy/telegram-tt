@@ -11,7 +11,8 @@ export default function getIdFromInputPeer(peer: Api.TypeInputPeer | Api.TypeInp
   }
 
   if (peer instanceof Api.InputPeerChat) {
-    return (-peer.chatId).toString();
+    // `chatId` already holds the positive id the mock data is keyed by
+    return peer.chatId.toString();
   }
 
   throw Error(`Unknown peer type${peer.className}`);
