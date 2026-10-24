@@ -233,6 +233,7 @@ const RichEditorTooltipContainer = ({
         <ChatCommandTooltip
           isOpen={isOpen}
           selectedIndex={selectedIndex}
+          chatId={context.chatId}
           botCommands={botCommands}
           quickReplies={filteredQuickReplies}
           quickReplyMessages={context.quickReplyMessages}

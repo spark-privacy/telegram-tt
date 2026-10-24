@@ -8,6 +8,7 @@ import type { ApiBotCommand } from '../../../../../api/types';
 import type { RichEditorTooltipItem, RichEditorTooltipsConfig } from '../../types';
 
 import { getMainUsername } from '../../../../../global/helpers';
+import { buildQuickReplyText, hasQuickReplyVariables } from '../../../../../util/quickReplyVariables';
 import { replaceEditorRange } from '../../../../middle/composer/helpers/richEditorComposer';
 import {
   buildBlockMatch,
@@ -36,6 +37,18 @@ export function buildCommandSuggestion(
       const { sendBotCommand, sendQuickReply } = getActions();
       const context = config.getContext();
       if ('shortcut' in props) {
+        const global = getGlobal();
+        const quickReplyText = global.quickReplies.messagesById[props.topMessageId]?.content.text?.text;
+
+        if (hasQuickReplyVariables(quickReplyText)) {
+          // A template with variables lands in the input field with the variables already filled
+          // in, so it can be checked and edited before it is sent. `onSelect` clears the input,
+          // which is what a sent template needs and this one must avoid
+          const text = buildQuickReplyText(global, context.chatId, quickReplyText!);
+          replaceEditorRange(currentEditor, range, { type: 'text', text });
+          return;
+        }
+
         replaceEditorRange(currentEditor, range, { type: 'text', text: `/${props.shortcut}` });
         sendQuickReply({ chatId: context.chatId, quickReplyId: props.id });
       } else {

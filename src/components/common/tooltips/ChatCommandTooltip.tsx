@@ -8,6 +8,7 @@ import type {
 } from '../../../api/types';
 
 import buildClassName from '../../../util/buildClassName';
+import { buildQuickReplyText } from '../../../util/quickReplyVariables';
 
 import useFrozenProps from '../../../hooks/useFrozenProps';
 import useLastCallback from '../../../hooks/useLastCallback';
@@ -20,6 +21,7 @@ import sharedStyles from './RichEditorTooltip.module.scss';
 export type OwnProps = {
   isOpen: boolean;
   selectedIndex: number;
+  chatId: string;
   botCommands?: ApiBotCommand[];
   quickReplies?: ApiQuickReply[];
   quickReplyMessages?: Record<number, ApiMessage>;
@@ -37,6 +39,7 @@ type QuickReplyWithDescription = {
 const ChatCommandTooltip = ({ isOpen, ...props }: OwnProps) => {
   const {
     selectedIndex,
+    chatId,
     botCommands,
     quickReplies,
     quickReplyMessages,
@@ -54,13 +57,15 @@ const ChatCommandTooltip = ({ isOpen, ...props }: OwnProps) => {
     if (!quickReplies?.length || !quickReplyMessages) return undefined;
     return quickReplies.map((reply) => {
       const message = quickReplyMessages[reply.topMessageId];
+      const text = message?.content.text?.text || '';
       return {
         quickReply: reply,
         command: reply.shortcut,
-        description: message?.content.text?.text || '',
+        // Variables are shown already filled in, so it is clear what will be inserted
+        description: buildQuickReplyText(getGlobal(), chatId, text),
       } satisfies QuickReplyWithDescription;
     });
-  }, [quickReplies, quickReplyMessages]);
+  }, [chatId, quickReplies, quickReplyMessages]);
 
   const isEmpty = !botCommands?.length && !quickReplies?.length;
 
