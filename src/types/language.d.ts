@@ -425,11 +425,6 @@ export interface LangPair {
   'DealTermsProposeChange': undefined;
   'DealTermsDisclaimer': undefined;
   'DealTermsSend': undefined;
-  'DealTermsWhatPlaceholder': undefined;
-  'DealTermsPricePlaceholder': undefined;
-  'DealTermsDuePlaceholder': undefined;
-  'DealTermsIncludesPlaceholder': undefined;
-  'DealTermsExcludesPlaceholder': undefined;
   'DealTermsWaitingForOther': undefined;
   'SettingsOfflineNotificationUnsupported': undefined;
   'TextSize': undefined;

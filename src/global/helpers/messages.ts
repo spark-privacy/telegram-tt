@@ -33,9 +33,11 @@ import {
   WEB_APP_PLATFORM,
 } from '../../config';
 import { areDeepEqual } from '../../util/areDeepEqual';
+import { parseDealTerms } from '../../util/dealTerms';
 import { getRawPeerId, isUserId } from '../../util/entities/ids';
 import { areSortedArraysIntersecting, unique } from '../../util/iteratees';
 import { isLocalMessageId } from '../../util/keys/messageKey';
+import { getTranslationFn } from '../../util/localization';
 import { MEMO_EMPTY_ARRAY } from '../../util/memo';
 import { getServerTime } from '../../util/serverTime';
 import { getGlobal } from '../index';
@@ -408,6 +410,14 @@ export function extractMessageText(message: ApiMessage | ApiStory, inChatList = 
     const richMessageText = message.content.richMessage && getRichMessagePreviewText(message.content.richMessage);
 
     return richMessageText ? { text: richMessageText } : undefined;
+  }
+
+  const dealTerms = parseDealTerms(contentText.text);
+  if (dealTerms) {
+    // Everything but the bubble shows the card by name: the service line is not for reading
+    const lang = getTranslationFn();
+
+    return { text: `${lang('DealTermsTitle')} · ${lang('DealTermsVersion', { version: dealTerms.version })}` };
   }
 
   const { text } = contentText;

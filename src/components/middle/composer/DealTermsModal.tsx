@@ -106,32 +106,27 @@ const DealTermsModal = ({ modal }: OwnProps) => {
       <Island>
         <InputText
           label={lang('DealTermsWhat')}
-          placeholder={lang('DealTermsWhatPlaceholder')}
           value={what}
           autoFocus
           onChange={(e) => setWhat(e.currentTarget.value)}
         />
         <InputText
           label={lang('DealTermsPrice')}
-          placeholder={lang('DealTermsPricePlaceholder')}
           value={price}
           onChange={(e) => setPrice(e.currentTarget.value)}
         />
         <InputText
           label={lang('DealTermsDue')}
-          placeholder={lang('DealTermsDuePlaceholder')}
           value={due}
           onChange={(e) => setDue(e.currentTarget.value)}
         />
         <InputText
           label={lang('DealTermsIncludes')}
-          placeholder={lang('DealTermsIncludesPlaceholder')}
           value={includes}
           onChange={(e) => setIncludes(e.currentTarget.value)}
         />
         <InputText
           label={lang('DealTermsExcludes')}
-          placeholder={lang('DealTermsExcludesPlaceholder')}
           value={excludes}
           onChange={(e) => setExcludes(e.currentTarget.value)}
         />

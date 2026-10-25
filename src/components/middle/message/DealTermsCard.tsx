@@ -23,14 +23,18 @@ export type OwnProps = {
 
 type StateProps = {
   replacedByVersion?: number;
+  // Set when this very version has already been agreed, by this card or by another one
+  agreedAt?: number;
 };
 
-const DealTermsCard = ({ message, terms, replacedByVersion }: OwnProps & StateProps) => {
+const DealTermsCard = ({
+  message, terms, replacedByVersion, agreedAt,
+}: OwnProps & StateProps) => {
   const { agreeDealTerms, openDealTermsModal } = getActions();
 
   const lang = useLang();
 
-  const isAgreed = terms.status === 'agreed';
+  const isAgreed = Boolean(agreedAt);
   const isReplaced = Boolean(replacedByVersion);
   const canAct = !isAgreed && !isReplaced;
 
@@ -70,7 +74,7 @@ const DealTermsCard = ({ message, terms, replacedByVersion }: OwnProps & StatePr
           ? lang('DealTermsReplaced', { version: replacedByVersion })
           : isAgreed
             ? lang('DealTermsStatusAgreed', {
-              date: formatDateTime(lang, new Date((terms.agreedAt || message.date) * 1000), {
+              date: formatDateTime(lang, new Date(agreedAt * 1000), {
                 date: 'long', time: 'short',
               }),
             })
@@ -80,11 +84,11 @@ const DealTermsCard = ({ message, terms, replacedByVersion }: OwnProps & StatePr
       {canAct && (
         <div className={styles.actions}>
           {!message.isOutgoing && (
-            <Button size="tiny" pill noForcedUpperCase onClick={handleAgree}>
+            <Button className={styles.action} size="tiny" pill noForcedUpperCase onClick={handleAgree}>
               {lang('DealTermsAgree')}
             </Button>
           )}
-          <Button size="tiny" pill isText noForcedUpperCase onClick={handleProposeChange}>
+          <Button className={styles.action} size="tiny" pill isText noForcedUpperCase onClick={handleProposeChange}>
             {lang('DealTermsProposeChange')}
           </Button>
         </div>
@@ -100,17 +104,26 @@ export default memo(withGlobal<OwnProps>(
     // The versions of one card are just the messages that carry the same deal in the chat
     const chatMessages = selectChatMessages(global, message.chatId);
     let replacedByVersion: number | undefined;
+    let agreedAt: number | undefined = terms.status === 'agreed' ? terms.agreedAt || message.date : undefined;
 
     Object.values(chatMessages || {}).forEach((chatMessage) => {
       const otherTerms = parseDealTerms(chatMessage.content.text?.text);
       if (otherTerms?.id !== terms.id) return;
-      if (otherTerms.version <= terms.version) return;
 
-      if (!replacedByVersion || otherTerms.version > replacedByVersion) {
-        replacedByVersion = otherTerms.version;
+      if (otherTerms.version > terms.version) {
+        if (!replacedByVersion || otherTerms.version > replacedByVersion) {
+          replacedByVersion = otherTerms.version;
+        }
+
+        return;
+      }
+
+      // The agreement of the other side is a card of its own, so this version is settled too
+      if (otherTerms.version === terms.version && otherTerms.status === 'agreed' && !agreedAt) {
+        agreedAt = otherTerms.agreedAt || chatMessage.date;
       }
     });
 
-    return { replacedByVersion };
+    return { replacedByVersion, agreedAt };
   },
 )(DealTermsCard));
