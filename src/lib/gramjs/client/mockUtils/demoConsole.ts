@@ -1,13 +1,28 @@
 /* eslint-disable no-console */
-import { getActions, getGlobal } from '../../../../global';
+import { getGlobal } from '../../../../global';
 
+import type { DealTerms } from '../../../../util/dealTerms';
 import type { DemoPeerName, DemoRequest } from './demoChannel';
 
+import { selectChatMessages } from '../../../../global/selectors';
 import { MAIN_IDB_STORE } from '../../../../util/browser/idb';
+import {
+  buildDealTermsText, buildNextDealTermsVersion, parseDealTerms,
+} from '../../../../util/dealTerms';
 import { DEMO_BROADCAST_CHANNEL, DEMO_PEER_IDS } from './demoChannel';
 
 // Console helper for the mocked demo: `window.demo` sends fake incoming messages
 // to the mocked client, so the chat list can be shown reacting to real updates
+// The other side acts on the last card in that chat, whoever sent it
+function findLastTerms(who: DemoPeerName): DealTerms | undefined {
+  const messages = selectChatMessages(getGlobal(), DEMO_PEER_IDS[who]);
+
+  return Object.values(messages || {})
+    .sort((left, right) => right.id - left.id)
+    .map((message) => parseDealTerms(message.content.text?.text))
+    .find(Boolean);
+}
+
 function initDemoConsole() {
   if (typeof BroadcastChannel === 'undefined') return;
 
@@ -26,19 +41,29 @@ function initDemoConsole() {
       send({ action: 'posts', count, delayMs });
       return `${count} постов в каналы`;
     },
-    fireReminders: () => {
-      const global = getGlobal();
-      const actions = getActions();
-      let count = 0;
+    agreeTerms: (who: DemoPeerName = 'anna') => {
+      const terms = findLastTerms(who);
+      if (!terms) return 'в этом чате нет карточки условий';
 
-      Object.values(global.noReplyReminders).forEach((chatReminders) => {
-        Object.values(chatReminders).forEach(({ chatId, messageId }) => {
-          count++;
-          actions.markNoReplyReminderDue({ chatId, messageId });
-        });
+      send({
+        action: 'message',
+        chatId: DEMO_PEER_IDS[who],
+        text: buildDealTermsText({ ...terms, status: 'agreed', agreedAt: Math.floor(Date.now() / 1000) }),
       });
 
-      return count ? `напоминаний сработало: ${count}` : 'активных напоминаний нет';
+      return `«${who}» согласен с условиями`;
+    },
+    proposeTerms: (changes: Partial<DealTerms> = {}, who: DemoPeerName = 'anna') => {
+      const terms = findLastTerms(who);
+      if (!terms) return 'в этом чате нет карточки условий';
+
+      send({
+        action: 'message',
+        chatId: DEMO_PEER_IDS[who],
+        text: buildDealTermsText(buildNextDealTermsVersion(terms, changes)),
+      });
+
+      return `«${who}» предложил правку`;
     },
     reset: async () => {
       // Reminders and everything else the demo produced live in the cached state, while the
@@ -57,7 +82,8 @@ function initDemoConsole() {
         '\n  demo.mama("текст")  — сообщение от Мамы',
         '\n  demo.posts(5)       — 5 постов подряд в каналы',
         '\n  demo.from("pavel")  — сообщение от Павла (чат без звука)',
-        '\n  demo.fireReminders() — все поставленные напоминания срабатывают сразу',
+        '\n  demo.agreeTerms()   — собеседник соглашается с последней карточкой условий',
+        '\n  demo.proposeTerms({ due: "15 ноября" }) — собеседник предлагает правку',
         '\n  demo.reset()        — вернуть демо к исходному состоянию',
       );
     },

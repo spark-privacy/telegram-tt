@@ -334,6 +334,28 @@ class TelegramClient {
       });
     }
 
+    // Pinning is what an agreed card does to itself, so the demo needs it to work
+    if (request instanceof Api.messages.UpdatePinnedMessage) {
+      const peerId = getIdFromInputPeer(request.peer);
+      if (!peerId) return undefined;
+
+      return new Api.Updates({
+        updates: [
+          new Api.UpdatePinnedMessages({
+            peer: createMockedTypePeer(peerId, this.mockData),
+            messages: [request.id],
+            ...(!request.unpin && { pinned: true as const }),
+            pts: getNextMockPts(),
+            ptsCount: 1,
+          }),
+        ],
+        users: [],
+        chats: [],
+        date: Math.floor(Date.now() / 1000),
+        seq: 0,
+      });
+    }
+
     if (request instanceof Api.messages.GetQuickReplies) {
       const quickReplies = this.mockData.quickReplies || [];
       const selfId = this.mockData.users.find((user) => user.self)?.id;
