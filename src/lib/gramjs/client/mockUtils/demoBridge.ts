@@ -11,6 +11,16 @@ import { MOCK_STARTING_PTS } from './MockTypes';
 // The client only accepts updates whose `pts` is the next one in a row
 let currentPts = MOCK_STARTING_PTS;
 
+export function getNextMockPts() {
+  currentPts += 1;
+
+  return currentPts;
+}
+
+export function getNextMessageIdFor(mockData: MockTypes) {
+  return getNextMessageId(mockData);
+}
+
 const DEFAULT_POSTS_COUNT = 5;
 const DEFAULT_POSTS_DELAY_MS = 700;
 
@@ -76,8 +86,7 @@ function sendIncomingMessage(client: TelegramClient, chatId: string, text?: stri
 
   // Mocked channels do not get a channel-shaped id, so the client keeps no separate `pts`
   // state for them: posts go through the common queue, like messages from a person
-  currentPts += 1;
-  client.fireUpdate(new Api.UpdateNewMessage({ message, pts: currentPts, ptsCount: 1 }));
+  client.fireUpdate(new Api.UpdateNewMessage({ message, pts: getNextMockPts(), ptsCount: 1 }));
 }
 
 function sendChannelPosts(client: TelegramClient, count = DEFAULT_POSTS_COUNT, delayMs = DEFAULT_POSTS_DELAY_MS) {
