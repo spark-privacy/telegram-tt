@@ -1742,10 +1742,6 @@ export interface ActionPayloads {
   cancelNoReplyRemindersInChat: {
     chatId: string;
   };
-  snoozeNoReplyReminder: {
-    chatId: string;
-    messageId: number;
-  };
   markNoReplyReminderDue: {
     chatId: string;
     messageId: number;

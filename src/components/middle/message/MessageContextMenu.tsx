@@ -503,7 +503,7 @@ const MessageContextMenu = ({
           </MenuItem>
         )}
         {canEdit && <MenuItem icon="edit" onClick={onEdit}>{lang('Edit')}</MenuItem>}
-        {canRemindIfNoReply && !hasNoReplyReminder && (
+        {canRemindIfNoReply && (
           <NestedMenuItem
             icon="schedule"
             submenu={(
@@ -523,7 +523,7 @@ const MessageContextMenu = ({
               </>
             )}
           >
-            {lang('MessageRemindIfNoReply')}
+            {hasNoReplyReminder ? lang('RemindAgainIfNoReply') : lang('MessageRemindIfNoReply')}
           </NestedMenuItem>
         )}
         {canRemindIfNoReply && hasNoReplyReminder && (
