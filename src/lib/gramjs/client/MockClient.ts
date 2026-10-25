@@ -17,7 +17,7 @@ import createMockedJSON from './mockUtils/createMockedJSON';
 import createMockedMessage from './mockUtils/createMockedMessage';
 import createMockedTypePeer from './mockUtils/createMockedTypePeer';
 import createMockedUser from './mockUtils/createMockedUser';
-import { startDemoBridge } from './mockUtils/demoBridge';
+import { getNextMessageIdFor, getNextMockPts, startDemoBridge } from './mockUtils/demoBridge';
 import getDocumentIdFromLocation from './mockUtils/getDocumentIdFromLocation';
 import getIdFromInputPeer from './mockUtils/getIdFromInputPeer';
 import { downloadFile } from './downloadFile';
@@ -295,6 +295,45 @@ class TelegramClient {
       });
     }
 
+    // Without an answer here a sent message stays unconfirmed forever: it keeps a local id,
+    // and the app offers almost nothing in its menu
+    if (request instanceof Api.messages.SendMessage) {
+      const peerId = getIdFromInputPeer(request.peer);
+      if (!peerId) return undefined;
+
+      const id = getNextMessageIdFor(this.mockData);
+      const date = Math.floor(Date.now() / 1000);
+      const messages = this.mockData.messages[peerId] || (this.mockData.messages[peerId] = []);
+      messages.push({
+        id,
+        message: request.message,
+        date,
+        out: true,
+        entities: [],
+      });
+
+      const dialog = this.mockData.dialogs.active.find((d) => d.id === peerId);
+      if (dialog) {
+        dialog.topMessage = id;
+        dialog.readInboxMaxId = id;
+      }
+
+      return new Api.Updates({
+        updates: [
+          new Api.UpdateMessageID({ id, randomId: request.randomId }),
+          new Api.UpdateNewMessage({
+            message: createMockedMessage(peerId, id, this.mockData),
+            pts: getNextMockPts(),
+            ptsCount: 1,
+          }),
+        ],
+        users: [],
+        chats: [],
+        date,
+        seq: 0,
+      });
+    }
+
     if (request instanceof Api.messages.GetQuickReplies) {
       const quickReplies = this.mockData.quickReplies || [];
       const selfId = this.mockData.users.find((user) => user.self)?.id;
@@ -311,6 +350,21 @@ class TelegramClient {
           : [],
         chats: [],
         users: [],
+      });
+    }
+
+    // An empty difference tells the client it is up to date and ends the sync cleanly
+    if (request instanceof Api.updates.GetDifference) {
+      return new Api.updates.DifferenceEmpty({
+        date: Math.floor(Date.now() / 1000),
+        seq: MOCK_STARTING_PTS,
+      });
+    }
+
+    if (request instanceof Api.updates.GetChannelDifference) {
+      return new Api.updates.ChannelDifferenceEmpty({
+        pts: MOCK_STARTING_PTS,
+        final: true,
       });
     }
 
@@ -493,6 +547,12 @@ class TelegramClient {
   public setPingCallback() {}
 
   public setIsPremium() {}
+
+  // The app reconnects when a sync takes too long. Without these it terminates the worker
+  // instead, and the mocked session is left "waiting for network" for good
+  public async destroy() {}
+
+  public async disconnect() {}
 
   public setShouldDebugExportedSenders() {}
 
