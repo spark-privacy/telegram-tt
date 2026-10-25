@@ -1746,6 +1746,11 @@ export interface ActionPayloads {
     chatId: string;
     messageId: number;
   } & WithTabId;
+  openNoReplyReminderModal: {
+    chatId: string;
+    messageId: number;
+  } & WithTabId;
+  closeNoReplyReminderModal: WithTabId | undefined;
   sendQuickReply: {
     chatId: string;
     quickReplyId: number;

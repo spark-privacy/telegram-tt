@@ -291,6 +291,11 @@ export type TabState = {
     messageId: number;
   };
 
+  noReplyReminderModal?: {
+    chatId: string;
+    messageId: number;
+  };
+
   privacySettingsNoticeModal?: {
     chatId: string;
     isReadDate: boolean;

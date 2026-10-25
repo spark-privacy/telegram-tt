@@ -495,6 +495,7 @@
 "RemindInThreeDays" = "In 3 days";
 "RemindInOneWeek" = "In a week";
 "RemindAtCustomTime" = "Pick a time...";
+"NoReplyReminderPickTimeSubmit" = "Remind at this time";
 "CancelNoReplyReminder" = "Cancel reminder";
 "NoReplyReminderSet" = "We will remind you if there is no reply.";
 "NoReplyReminderTitle" = "Still no reply";
