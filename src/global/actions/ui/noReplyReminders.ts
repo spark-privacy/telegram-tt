@@ -1,8 +1,10 @@
-import type { NoReplyReminder } from '../../../types';
-import type { ActionReturnType, GlobalState } from '../../types';
+import type { ActionReturnType } from '../../types';
 
 import { getCurrentTabId } from '../../../util/establishMultitabRole';
 import { addActionHandler } from '../..';
+import {
+  removeNoReplyReminder, removeNoReplyRemindersInChat, updateNoReplyReminder,
+} from '../../reducers/noReplyReminders';
 import { selectChat, selectChatMessage } from '../../selectors';
 
 addActionHandler('setNoReplyReminder', (global, actions, payload): ActionReturnType => {
@@ -11,34 +13,24 @@ addActionHandler('setNoReplyReminder', (global, actions, payload): ActionReturnT
   const message = selectChatMessage(global, chatId, messageId);
   if (!message) return global;
 
-  return replaceChatReminders(global, chatId, {
-    ...global.noReplyReminders[chatId],
-    [messageId]: {
-      chatId,
-      messageId,
-      since: message.date,
-      dueAt,
-    },
+  return updateNoReplyReminder(global, chatId, messageId, {
+    chatId,
+    messageId,
+    since: message.date,
+    dueAt,
   });
 });
 
 addActionHandler('cancelNoReplyReminder', (global, actions, payload): ActionReturnType => {
   const { chatId, messageId } = payload;
 
-  const chatReminders = global.noReplyReminders[chatId];
-  if (!chatReminders?.[messageId]) return global;
-
-  const { [messageId]: removedReminder, ...rest } = chatReminders;
-
-  return replaceChatReminders(global, chatId, rest);
+  return removeNoReplyReminder(global, chatId, messageId);
 });
 
-// Any message from the other side counts as an answer, so the whole chat is cleared at once
 addActionHandler('cancelNoReplyRemindersInChat', (global, actions, payload): ActionReturnType => {
   const { chatId } = payload;
-  if (!global.noReplyReminders[chatId]) return global;
 
-  return replaceChatReminders(global, chatId, {});
+  return removeNoReplyRemindersInChat(global, chatId);
 });
 
 addActionHandler('markNoReplyReminderDue', (global, actions, payload): ActionReturnType => {
@@ -47,10 +39,7 @@ addActionHandler('markNoReplyReminderDue', (global, actions, payload): ActionRet
   const reminder = global.noReplyReminders[chatId]?.[messageId];
   if (!reminder || reminder.isDue) return global;
 
-  global = replaceChatReminders(global, chatId, {
-    ...global.noReplyReminders[chatId],
-    [messageId]: { ...reminder, isDue: true },
-  });
+  global = updateNoReplyReminder(global, chatId, messageId, { ...reminder, isDue: true });
 
   const chat = selectChat(global, chatId);
   if (chat) {
@@ -69,16 +58,3 @@ addActionHandler('markNoReplyReminderDue', (global, actions, payload): ActionRet
 
   return global;
 });
-
-function replaceChatReminders<T extends GlobalState>(
-  global: T,
-  chatId: string,
-  chatReminders: Record<number, NoReplyReminder>,
-): T {
-  const { [chatId]: currentChatReminders, ...rest } = global.noReplyReminders;
-
-  return {
-    ...global,
-    noReplyReminders: Object.keys(chatReminders).length ? { ...rest, [chatId]: chatReminders } : rest,
-  };
-}
