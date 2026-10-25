@@ -5,8 +5,6 @@ import { getCurrentTabId } from '../../../util/establishMultitabRole';
 import { addActionHandler } from '../..';
 import { selectChat, selectChatMessage } from '../../selectors';
 
-const SNOOZE_MS = 24 * 60 * 60 * 1000;
-
 addActionHandler('setNoReplyReminder', (global, actions, payload): ActionReturnType => {
   const { chatId, messageId, dueAt } = payload;
 
@@ -70,18 +68,6 @@ addActionHandler('markNoReplyReminderDue', (global, actions, payload): ActionRet
   }
 
   return global;
-});
-
-addActionHandler('snoozeNoReplyReminder', (global, actions, payload): ActionReturnType => {
-  const { chatId, messageId } = payload;
-
-  const reminder = global.noReplyReminders[chatId]?.[messageId];
-  if (!reminder) return global;
-
-  return replaceChatReminders(global, chatId, {
-    ...global.noReplyReminders[chatId],
-    [messageId]: { ...reminder, dueAt: Date.now() + SNOOZE_MS, isDue: undefined },
-  });
 });
 
 function replaceChatReminders<T extends GlobalState>(

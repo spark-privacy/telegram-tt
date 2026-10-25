@@ -490,6 +490,7 @@
 "SettingsAutomaticTextReplacements" = "Automatic text replacements";
 "SettingsAutomaticTextReplacementsInfo" = "Convert --, << and >> as you type";
 "MessageRemindIfNoReply" = "Remind if no reply";
+"RemindAgainIfNoReply" = "Remind again later";
 "RemindInOneDay" = "In 1 day";
 "RemindInThreeDays" = "In 3 days";
 "RemindInOneWeek" = "In a week";

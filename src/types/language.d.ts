@@ -413,6 +413,7 @@ export interface LangPair {
   'SettingsAutomaticTextReplacements': undefined;
   'SettingsAutomaticTextReplacementsInfo': undefined;
   'MessageRemindIfNoReply': undefined;
+  'RemindAgainIfNoReply': undefined;
   'RemindInOneDay': undefined;
   'RemindInThreeDays': undefined;
   'RemindInOneWeek': undefined;
