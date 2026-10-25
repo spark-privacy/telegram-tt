@@ -505,11 +505,6 @@
 "DealTermsReplaced" = "Replaced by version {version}";
 "DealTermsDisclaimer" = "A record of what was agreed. Not a contract.";
 "DealTermsSend" = "Send";
-"DealTermsWhatPlaceholder" = "Design of a landing page";
-"DealTermsPricePlaceholder" = "60,000";
-"DealTermsDuePlaceholder" = "November 10";
-"DealTermsIncludesPlaceholder" = "Three screens, mobile layout";
-"DealTermsExcludesPlaceholder" = "Texts, photography";
 "DealTermsWaitingForOther" = "Waiting for the other side";
 "SettingsOfflineNotificationUnsupported" = "Not supported";
 "TextSize" = "Message Font Size";
