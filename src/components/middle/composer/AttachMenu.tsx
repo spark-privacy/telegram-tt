@@ -70,6 +70,7 @@ export type OwnProps = {
   onFileSelect: (files: File[], shouldSendAsFile?: boolean) => void;
   onDateInsert: (text: ApiFormattedText) => void;
   onTodoListCreate: NoneToVoidFunction;
+  onDealTermsCreate: NoneToVoidFunction;
   onRichInputExpand: NoneToVoidFunction;
   onMenuOpen: NoneToVoidFunction;
   onMenuClose: NoneToVoidFunction;
@@ -106,6 +107,7 @@ const AttachMenu = ({
   onMenuOpen,
   onMenuClose,
   onTodoListCreate,
+  onDealTermsCreate,
   onRichInputExpand,
 }: OwnProps) => {
   const {
@@ -315,6 +317,9 @@ const AttachMenu = ({
             )}
             {canAttachToDoLists && !editingMessage && (
               <MenuItem icon="select" onClick={onTodoListCreate}>{lang('TitleToDoList')}</MenuItem>
+            )}
+            {!editingMessage && (
+              <MenuItem icon="document" onClick={onDealTermsCreate}>{lang('AttachDealTerms')}</MenuItem>
             )}
             {canInsertDate && !editingMessage && (
               <MenuItem icon="calendar" onClick={handleDateMenuClick}>{lang('GiftInfoDate')}</MenuItem>

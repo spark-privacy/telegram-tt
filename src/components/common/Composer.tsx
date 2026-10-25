@@ -506,6 +506,7 @@ const Composer = ({
     clearDraft,
     showDialog,
     openTodoListModal,
+    openDealTermsModal,
     closeTodoListModal,
     clearAiMessageEditorPendingResult,
     loadScheduledHistory,
@@ -1738,6 +1739,10 @@ const Composer = ({
     });
   });
 
+  const handleDealTermsCreate = useLastCallback(() => {
+    openDealTermsModal({ chatId });
+  });
+
   const handleTodoListCreate = useLastCallback(() => {
     if (!isCurrentUserPremium) {
       showNotification({
@@ -2931,6 +2936,7 @@ const Composer = ({
               onFileSelect={isRichInputExpansionActive ? handleRichMediaSelect : handleFileSelect}
               onDateInsert={handleFormattedDateInsert}
               onTodoListCreate={handleTodoListCreate}
+              onDealTermsCreate={handleDealTermsCreate}
               isScheduled={isInScheduledList}
               attachBots={isInMessageList ? attachBots : undefined}
               canSendMoney={isInMessageList ? canSendMoney : undefined}

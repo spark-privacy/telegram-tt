@@ -129,6 +129,7 @@ import type {
 import type { BrowserModalStateType, BrowserTab } from '../../types/browser';
 import type { ClipboardTextFormat, MessageCopyRequest } from '../../types/messageCopy';
 import type { WebApp, WebAppOutboundEvent } from '../../types/webapp';
+import type { DealTerms } from '../../util/dealTerms';
 import type { RegularLangFnParameters } from '../../util/localization';
 import type { DownloadableMedia } from '../helpers';
 import type { SharedState } from './sharedState';
@@ -1729,6 +1730,20 @@ export interface ActionPayloads {
     messageId: number;
   };
   loadQuickReplies: undefined;
+
+  openDealTermsModal: {
+    chatId: string;
+    terms?: DealTerms;
+  } & WithTabId;
+  closeDealTermsModal: WithTabId | undefined;
+  sendDealTerms: {
+    chatId: string;
+    terms: DealTerms;
+  } & WithTabId;
+  agreeDealTerms: {
+    chatId: string;
+    messageId: number;
+  } & WithTabId;
   sendQuickReply: {
     chatId: string;
     quickReplyId: number;

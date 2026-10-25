@@ -33,6 +33,7 @@ import './ui/account';
 import './ui/aiMessageEditor';
 import './ui/users';
 import './ui/settings';
+import './ui/dealTerms';
 import './ui/misc';
 import './ui/payments';
 import './ui/calls';

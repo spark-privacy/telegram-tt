@@ -5,6 +5,7 @@ import type {
 } from '../../api/types';
 import { ApiMessageEntityTypes } from '../../api/types';
 
+import { parseDealTerms } from '../../util/dealTerms';
 import { type LangFn } from '../../util/localization';
 import trimText from '../../util/trimText';
 import { renderTextWithEntities } from '../../components/common/helpers/renderTextWithEntities';
@@ -39,6 +40,11 @@ export function getMessageTextWithSpoilers(
   statefulContent: StatefulMediaContent | undefined,
   truncateLength?: number,
 ) {
+  const dealTerms = parseDealTerms(message.content.text?.text);
+  if (dealTerms) {
+    return `${lang('DealTermsTitle')} · ${lang('DealTermsVersion', { version: dealTerms.version })}`;
+  }
+
   const transcription = getMessageTranscription(message);
 
   const richMessageText = message.content.richMessage

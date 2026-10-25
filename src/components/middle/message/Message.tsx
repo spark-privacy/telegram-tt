@@ -135,6 +135,7 @@ import { IS_TAURI } from '../../../util/browser/globalEnvironment';
 import { IS_ANDROID, IS_TRANSLATION_SUPPORTED } from '../../../util/browser/windowEnvironment';
 import buildClassName from '../../../util/buildClassName';
 import buildStyle from '../../../util/buildStyle';
+import { parseDealTerms } from '../../../util/dealTerms';
 import { isUserId } from '../../../util/entities/ids';
 import { getMessageKey } from '../../../util/keys/messageKey';
 import { parseTranslationCacheKey } from '../../../util/keys/translationKey';
@@ -194,6 +195,7 @@ import AnimatedEmoji from './AnimatedEmoji';
 import CommentButton from './CommentButton';
 import Contact from './Contact';
 import ContextMenuContainer from './ContextMenuContainer.async';
+import DealTermsCard from './DealTermsCard';
 import DiceWrapper from './dice/DiceWrapper';
 import FactCheck from './FactCheck';
 import Game from './Game';
@@ -1107,6 +1109,11 @@ const Message = ({
 
   function renderMessageText(isForAnimation?: boolean) {
     if (!textMessage) return undefined;
+
+    const dealTerms = parseDealTerms(textMessage.content.text?.text);
+    if (dealTerms) {
+      return <DealTermsCard message={textMessage} terms={dealTerms} />;
+    }
 
     if (textMessage.content.richMessage) {
       return (

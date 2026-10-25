@@ -122,6 +122,7 @@ import type {
 } from '../../types';
 import type { BrowserState } from '../../types/browser';
 import type { RegularLangKey } from '../../types/language';
+import type { DealTerms } from '../../util/dealTerms';
 import type { SearchResultKey } from '../../util/keys/searchResultKey';
 import type { RegularLangFnParameters } from '../../util/localization';
 import type { ProfileCollectionKey } from '../selectors/payments';
@@ -669,6 +670,12 @@ export type TabState = {
     shouldInsertToRichInput?: boolean;
     shared?: MusicPickerSharedResults;
     global?: MusicPickerGlobalResults;
+  };
+
+  dealTermsModal?: {
+    chatId: string;
+    // Set when an existing card is being changed, which makes the next version
+    terms?: DealTerms;
   };
 
   todoListModal?: {

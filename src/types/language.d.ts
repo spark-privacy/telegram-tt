@@ -412,6 +412,25 @@ export interface LangPair {
   'SettingsKeyboard': undefined;
   'SettingsAutomaticTextReplacements': undefined;
   'SettingsAutomaticTextReplacementsInfo': undefined;
+  'AttachDealTerms': undefined;
+  'DealTermsTitle': undefined;
+  'DealTermsWhat': undefined;
+  'DealTermsPrice': undefined;
+  'DealTermsDue': undefined;
+  'DealTermsIncludes': undefined;
+  'DealTermsExcludes': undefined;
+  'DealTermsStatusPending': undefined;
+  'DealTermsStatusAgreedShort': undefined;
+  'DealTermsAgree': undefined;
+  'DealTermsProposeChange': undefined;
+  'DealTermsDisclaimer': undefined;
+  'DealTermsSend': undefined;
+  'DealTermsWhatPlaceholder': undefined;
+  'DealTermsPricePlaceholder': undefined;
+  'DealTermsDuePlaceholder': undefined;
+  'DealTermsIncludesPlaceholder': undefined;
+  'DealTermsExcludesPlaceholder': undefined;
+  'DealTermsWaitingForOther': undefined;
   'SettingsOfflineNotificationUnsupported': undefined;
   'TextSize': undefined;
   'ChatBackground': undefined;
@@ -3483,6 +3502,15 @@ export interface LangPairWithVariables<V = LangVariable> {
   };
   'AutodownloadSizeLimitUpTo': {
     'limit': V;
+  };
+  'DealTermsVersion': {
+    'version': V;
+  };
+  'DealTermsStatusAgreed': {
+    'date': V;
+  };
+  'DealTermsReplaced': {
+    'version': V;
   };
   'AutoDeleteSetInfo': {
     'time': V;

@@ -3,6 +3,7 @@ import { memo, useEffect, useRef, useState } from '@teact';
 import { getActions, withGlobal } from '../../global';
 
 import type { ApiChat, ApiChatBannedRights, ApiInputDraftReplyInfo, ApiTopic } from '../../api/types';
+import type { TabState } from '../../global/types/tabState';
 import type { ActiveEmojiInteraction, AnimationLevel, MessageListType, ThemeKey, ThreadId } from '../../types';
 import type { PaneState } from './hooks/useHeaderPane';
 import { MAIN_THREAD_ID } from '../../api/types';
@@ -87,6 +88,7 @@ import SeenByModal from '../common/SeenByModal.async';
 import UnpinAllMessagesModal from '../common/UnpinAllMessagesModal.async';
 import Transition from '../ui/Transition';
 import ChatLanguageModal from './ChatLanguageModal.async';
+import DealTermsModal from './composer/DealTermsModal';
 import { DropAreaState } from './composer/DropArea';
 import EmojiInteractionAnimation from './EmojiInteractionAnimation.async';
 import FloatingActionButtons from './FloatingActionButtons';
@@ -135,6 +137,7 @@ type StateProps = {
   isRichInputExpanded?: boolean;
   isSelectModeActive?: boolean;
   isSeenByModalOpen: boolean;
+  dealTermsModal?: TabState['dealTermsModal'];
   isPrivacySettingsNoticeModalOpen: boolean;
   isReactorListModalOpen: boolean;
   isChatLanguageModalOpen?: boolean;
@@ -211,6 +214,7 @@ function MiddleColumn({
   isRichInputExpanded,
   isSelectModeActive,
   isSeenByModalOpen,
+  dealTermsModal,
   isPrivacySettingsNoticeModalOpen,
   isReactorListModalOpen,
   isChatLanguageModalOpen,
@@ -700,6 +704,7 @@ function MiddleColumn({
                   canPost={renderingCanPost}
                 />
                 <SeenByModal isOpen={isSeenByModalOpen} />
+                <DealTermsModal modal={dealTermsModal} />
                 <PrivacySettingsNoticeModal isOpen={isPrivacySettingsNoticeModalOpen} />
                 <ReactorListModal isOpen={isReactorListModalOpen} />
                 {IS_TRANSLATION_SUPPORTED && <ChatLanguageModal isOpen={isChatLanguageModalOpen} />}
@@ -760,6 +765,7 @@ export default memo(withGlobal<OwnProps>(
       isRichInputExpanded,
       isSelectModeActive: selectIsInSelectMode(global),
       isSeenByModalOpen: Boolean(seenByModal),
+      dealTermsModal: selectTabState(global).dealTermsModal,
       isPrivacySettingsNoticeModalOpen: Boolean(privacySettingsNoticeModal),
       isReactorListModalOpen: Boolean(reactorModal),
       isChatLanguageModalOpen: Boolean(chatLanguageModal),
