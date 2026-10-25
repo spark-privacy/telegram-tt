@@ -82,6 +82,7 @@ import usePinnedMessage from './hooks/usePinnedMessage';
 import useFluidBackgroundFilter from './message/hooks/useFluidBackgroundFilter';
 
 import Composer from '../common/Composer';
+import NoReplyReminderModal from '../common/NoReplyReminderModal.async';
 import PrivacySettingsNoticeModal from '../common/PrivacySettingsNoticeModal.async';
 import SeenByModal from '../common/SeenByModal.async';
 import UnpinAllMessagesModal from '../common/UnpinAllMessagesModal.async';
@@ -135,6 +136,7 @@ type StateProps = {
   isRichInputExpanded?: boolean;
   isSelectModeActive?: boolean;
   isSeenByModalOpen: boolean;
+  isNoReplyReminderModalOpen: boolean;
   isPrivacySettingsNoticeModalOpen: boolean;
   isReactorListModalOpen: boolean;
   isChatLanguageModalOpen?: boolean;
@@ -211,6 +213,7 @@ function MiddleColumn({
   isRichInputExpanded,
   isSelectModeActive,
   isSeenByModalOpen,
+  isNoReplyReminderModalOpen,
   isPrivacySettingsNoticeModalOpen,
   isReactorListModalOpen,
   isChatLanguageModalOpen,
@@ -700,6 +703,7 @@ function MiddleColumn({
                   canPost={renderingCanPost}
                 />
                 <SeenByModal isOpen={isSeenByModalOpen} />
+                <NoReplyReminderModal isOpen={isNoReplyReminderModalOpen} />
                 <PrivacySettingsNoticeModal isOpen={isPrivacySettingsNoticeModalOpen} />
                 <ReactorListModal isOpen={isReactorListModalOpen} />
                 {IS_TRANSLATION_SUPPORTED && <ChatLanguageModal isOpen={isChatLanguageModalOpen} />}
@@ -740,7 +744,7 @@ export default memo(withGlobal<OwnProps>(
 
     const {
       messageLists, isLeftColumnShown, activeEmojiInteractions,
-      seenByModal, reactorModal, shouldSkipHistoryAnimations,
+      seenByModal, noReplyReminderModal, reactorModal, shouldSkipHistoryAnimations,
       chatLanguageModal, privacySettingsNoticeModal,
       uiReadyState, isRichInputExpanded,
     } = selectTabState(global);
@@ -760,6 +764,7 @@ export default memo(withGlobal<OwnProps>(
       isRichInputExpanded,
       isSelectModeActive: selectIsInSelectMode(global),
       isSeenByModalOpen: Boolean(seenByModal),
+      isNoReplyReminderModalOpen: Boolean(noReplyReminderModal),
       isPrivacySettingsNoticeModalOpen: Boolean(privacySettingsNoticeModal),
       isReactorListModalOpen: Boolean(reactorModal),
       isChatLanguageModalOpen: Boolean(chatLanguageModal),

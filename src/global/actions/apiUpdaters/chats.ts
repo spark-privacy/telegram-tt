@@ -27,7 +27,6 @@ import {
   updatePeerStoriesHidden,
   updateTopic,
 } from '../../reducers';
-import { removeNoReplyRemindersInChat } from '../../reducers/noReplyReminders';
 import { removeUnreadReactions } from '../../reducers/reactions';
 import { updateTabState } from '../../reducers/tabs';
 import { addUnreadMessageToCounter, replaceThreadLocalStateParam } from '../../reducers/threads';
@@ -234,12 +233,6 @@ addActionHandler('apiUpdate', (global, actions, update): ActionReturnType => {
       const chat = selectChat(global, chatId);
       if (!chat) {
         return undefined;
-      }
-
-      // Any message from the other side counts as an answer; a reaction does not.
-      // It has to happen on this `global`, because the handler writes it back below
-      if (!isLocal) {
-        global = removeNoReplyRemindersInChat(global, chatId);
       }
 
       const hasMention = Boolean(message.hasUnreadMention);

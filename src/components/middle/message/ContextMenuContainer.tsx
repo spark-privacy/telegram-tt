@@ -82,7 +82,6 @@ import buildClassName from '../../../util/buildClassName';
 import { copyTextToClipboard } from '../../../util/clipboard';
 import { isUserId } from '../../../util/entities/ids';
 import { getTranslationCacheKey, parseTranslationCacheKey } from '../../../util/keys/translationKey';
-import { getServerTimeOffset } from '../../../util/serverTime';
 import { getSelectionAsFormattedText } from './helpers/getSelectionAsFormattedText';
 import { isSelectionRangeInsideMessage } from './helpers/isSelectionRangeInsideMessage';
 
@@ -304,6 +303,7 @@ const ContextMenuContainer = ({
     showNotification,
     setNoReplyReminder,
     cancelNoReplyReminder,
+    openNoReplyReminderModal,
     setSettingOption,
     loadRichMessage,
     loadSavedMusicIds,
@@ -332,7 +332,6 @@ const ContextMenuContainer = ({
     message.date,
     message.scheduleRepeatPeriod,
   );
-  const [requestReminderCalendar, reminderCalendar] = useSchedule(false, onClose);
 
   // `undefined` indicates that emoji are present and loading
   const hasCustomEmoji = !message.isEphemeral
@@ -575,14 +574,8 @@ const ContextMenuContainer = ({
   });
 
   const handleRemindAtCustomTime = useLastCallback(() => {
-    setIsMenuOpen(false);
-    requestReminderCalendar((scheduledAt) => {
-      // `useSchedule` returns server time, while the reminder is checked against this device
-      const dueAt = (scheduledAt - getServerTimeOffset()) * 1000;
-      setNoReplyReminder({ chatId: message.chatId, messageId: message.id, dueAt });
-      showNotification({ message: { key: 'NoReplyReminderSet' } });
-      onClose();
-    });
+    openNoReplyReminderModal({ chatId: message.chatId, messageId: message.id });
+    closeMenu();
   });
 
   const handleCancelNoReplyReminder = useLastCallback(() => {
@@ -927,7 +920,6 @@ const ContextMenuContainer = ({
         confirmHandler={handlePollClose}
       />
       {canReschedule && calendar}
-      {canRemindIfNoReply && reminderCalendar}
     </div>
   );
 };

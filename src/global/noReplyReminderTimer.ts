@@ -3,19 +3,44 @@ import { addCallback } from '../lib/teact/teactn';
 import type { NoReplyReminder } from '../types';
 import type { GlobalState } from './types';
 
+import { selectChatLastMessage } from './selectors';
 import { getActions, getGlobal } from '.';
 
-// Reminders live only on this device, so they are checked here with a single timer
-// pointed at the nearest one
+// Reminders live only on this device, so they are checked here: one timer pointed at the
+// nearest one, and a look at every chat that waits for an answer whenever the state changes
 let timer: number | undefined;
 let prevReminders: GlobalState['noReplyReminders'] | undefined;
 
 addCallback((global: GlobalState) => {
+  // An answer changes the chat, not the reminders, so this is checked on every update
+  cancelAnsweredReminders(global);
+
   if (global.noReplyReminders === prevReminders) return;
 
   prevReminders = global.noReplyReminders;
   scheduleNextReminder(global);
 });
+
+// An answer is anything the other side writes after the message that is being waited on.
+// Reading it from the chat itself keeps this working no matter which update brought the
+// message in, and also covers an answer that arrived while the app was closed
+function cancelAnsweredReminders(global: GlobalState) {
+  if (!Object.keys(global.noReplyReminders).length) return;
+
+  const actions = getActions();
+
+  forEachReminder(global, (reminder) => {
+    if (!isAnswered(global, reminder)) return;
+
+    actions.cancelNoReplyReminder({ chatId: reminder.chatId, messageId: reminder.messageId });
+  });
+}
+
+export function isAnswered(global: GlobalState, reminder: NoReplyReminder) {
+  const lastMessage = selectChatLastMessage(global, reminder.chatId);
+
+  return Boolean(lastMessage && !lastMessage.isOutgoing && lastMessage.date >= reminder.since);
+}
 
 function scheduleNextReminder(global: GlobalState) {
   clearTimeout(timer);

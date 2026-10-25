@@ -47,6 +47,7 @@ export { default as DeleteMessageModal } from '../components/common/DeleteMessag
 export { default as DeleteMemberModal } from '../components/modals/deleteMember/DeleteMemberModal';
 export { default as PinMessageModal } from '../components/common/PinMessageModal';
 export { default as UnpinAllMessagesModal } from '../components/common/UnpinAllMessagesModal';
+export { default as NoReplyReminderModal } from '../components/common/NoReplyReminderModal';
 export { default as SeenByModal } from '../components/common/SeenByModal';
 export { default as PrivacySettingsNoticeModal } from '../components/common/PrivacySettingsNoticeModal';
 export { default as CountryPickerModal } from '../components/common/CountryPickerModal';

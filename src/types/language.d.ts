@@ -418,6 +418,7 @@ export interface LangPair {
   'RemindInThreeDays': undefined;
   'RemindInOneWeek': undefined;
   'RemindAtCustomTime': undefined;
+  'NoReplyReminderPickTimeSubmit': undefined;
   'CancelNoReplyReminder': undefined;
   'NoReplyReminderSet': undefined;
   'NoReplyReminderTitle': undefined;
