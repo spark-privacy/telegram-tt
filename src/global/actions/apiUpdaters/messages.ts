@@ -77,6 +77,7 @@ import {
 } from '../../reducers';
 import { appendShufflePlaylist, removeTrackFromShuffle } from '../../reducers/audioPlayer';
 import { removeMessagesFromGlobalSearchResults } from '../../reducers/globalSearch';
+import { removeNoReplyReminder } from '../../reducers/noReplyReminders';
 import { addUnreadPollVotes } from '../../reducers/polls';
 import { addUnreadReactions, removeUnreadReactions } from '../../reducers/reactions';
 import { updateTabState } from '../../reducers/tabs';
@@ -1643,9 +1644,7 @@ export function deleteMessages<T extends GlobalState>(
 
     // A deleted message has nothing left to wait an answer for
     ids.forEach((id) => {
-      if (global.noReplyReminders[chatId]?.[id]) {
-        actions.cancelNoReplyReminder({ chatId, messageId: id });
-      }
+      global = removeNoReplyReminder(global, chatId, id);
     });
 
     const threadIdsToUpdate = new Set<ThreadId>();
